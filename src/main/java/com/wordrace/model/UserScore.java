@@ -20,10 +20,6 @@ public class UserScore {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private Long userId;
-
-    private Long gameId;
-
     private int sore;
 
 }
