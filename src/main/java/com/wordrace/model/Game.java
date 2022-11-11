@@ -20,7 +20,7 @@ public class Game {
     @OneToMany(mappedBy = "game")
     private List<UserScore> userScore;
 
-    @ManyToMany(targetEntity = Word.class)
+    @ManyToMany(mappedBy = "games")
     private List<Word> words;
 
     private int totalScore;

@@ -25,7 +25,7 @@ public class Room {
     private Game game;
 
 
-    @ManyToMany(targetEntity = User.class)
+    @ManyToMany(mappedBy = "rooms",fetch = FetchType.LAZY)
     private List<User> users;
 
 }

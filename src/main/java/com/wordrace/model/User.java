@@ -15,15 +15,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private String email;
+
+    private String password;
+
+    private String nickname;
+
     @OneToMany(mappedBy = "user")
     private List<UserScore> userScore;
 
-    private String email;
-    private String password;
-    private String nickname;
 
-
-    @ManyToMany(targetEntity = Room.class)
+    @ManyToMany(fetch = FetchType.LAZY, targetEntity = Room.class)
+    @JoinTable(name = "room_user",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "room_id"))
     private List<Room> rooms;
 
 }
