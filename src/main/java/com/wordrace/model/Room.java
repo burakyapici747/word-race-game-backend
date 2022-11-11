@@ -21,6 +21,9 @@ public class Room {
 
     private int capacity;
 
+    @OneToOne(mappedBy = "room")
+    private Game game;
+
 
     @ManyToMany(targetEntity = User.class)
     private List<User> users;
