@@ -14,6 +14,10 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserScore> userScore;
+
     private String email;
     private String password;
     private String nickname;
