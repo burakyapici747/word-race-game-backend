@@ -1,4 +1,4 @@
-package com.wordrace.service.impl;
+package com.wordrace.service;
 
 
 import com.wordrace.model.Game;
