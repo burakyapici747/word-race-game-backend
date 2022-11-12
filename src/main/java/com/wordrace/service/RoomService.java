@@ -16,8 +16,7 @@ public interface RoomService {
     Optional<List<Word>> getWordsByRoomId(Long roomId);
 
     //Post Operations
-
-    Optional<Room> createRoom();
+    Optional<Room> createRoom(Room room);
 
     //Put Operations
     Optional<Room> updateRoomByRoomId(Long roomId, Room room);
