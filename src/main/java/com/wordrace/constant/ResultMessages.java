@@ -2,7 +2,7 @@ package com.wordrace.constant;
 
 public final class ResultMessages {
 
-    public static final String EMPTY = "Getting is successfully.";
+    public static final String EMPTY = "";
 
     //CRUD MESSAGES
     public static final String NOT_FOUND_DATA = "No data found.";
