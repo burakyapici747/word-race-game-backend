@@ -23,7 +23,7 @@ public interface GameService {
     Optional<Word> addWordToGame(List<Word> words);
 
     //Put Operations
-    Optional<Game> updateTotalScoreById(Long id);
+    Optional<Game> updateTotalScoreById(Long id, int totalScore);
 
     //Delete Operations
     boolean deleteGameById(Long id);
