@@ -6,10 +6,12 @@ import javax.persistence.*;
 
 @Data
 @Entity
+@Table(name = "user_score")
 public class UserScore {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Long id;
 
     @ManyToOne
@@ -20,6 +22,7 @@ public class UserScore {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private int sore;
+    @Column(name = "score")
+    private int score;
 
 }

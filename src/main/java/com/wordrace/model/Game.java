@@ -7,10 +7,12 @@ import java.util.List;
 
 @Data
 @Entity
-@Table
+@Table(name = "game")
 public class Game {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Long id;
 
     @OneToOne
@@ -23,6 +25,7 @@ public class Game {
     @ManyToMany(mappedBy = "games")
     private List<Word> words;
 
+    @Column(name = "total_score")
     private int totalScore;
 
 }

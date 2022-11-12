@@ -7,23 +7,26 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table
 @Data
+@Table(name = "user")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Long id;
 
+    @Column(name = "email")
     private String email;
 
+    @Column(name = "password")
     private String password;
 
+    @Column(name = "nickname")
     private String nickname;
 
     @OneToMany(mappedBy = "user")
     private List<UserScore> userScore;
-
 
     @ManyToMany(fetch = FetchType.LAZY, targetEntity = Room.class)
     @JoinTable(name = "room_user",
