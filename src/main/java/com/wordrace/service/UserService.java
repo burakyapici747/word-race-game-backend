@@ -8,7 +8,6 @@ import java.util.Optional;
 
 public interface UserService {
 
-
     //GET OPERATIONS
     Optional<List<User>> getAllUsers();
 
@@ -29,7 +28,7 @@ public interface UserService {
 
     //PUT OPERATIONS
 
-    Optional<User> updateUser(User user);
+    Optional<User> updateUser(Long id, User user);
 
     //DELETE OPERATIONS
 
