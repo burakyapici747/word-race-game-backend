@@ -14,9 +14,9 @@ public interface GameService {
     //Get Operations
     Optional<List<Game>> getAllGames();
     Optional<Game> getGameById(Long id);
-    Optional<Word> getWordByGameId(Long id);
-    Optional<Room> getRoomByGameId(Long id);
-    Optional<List<User>> getUsersByGameId(Long id);
+    Optional<Word> getWordByGameId(Long gameId);
+    Optional<Room> getRoomByGameId(Long gameId);
+    Optional<List<User>> getUsersByGameId(Long gameId);
 
     //Post Operations
     Optional<Game> createGame(Long roomId);
@@ -26,5 +26,5 @@ public interface GameService {
     Optional<Game> updateTotalScoreById(Long id);
 
     //Delete Operations
-    Optional<Boolean> deleteGameById(Long id);
+    boolean deleteGameById(Long id);
 }
