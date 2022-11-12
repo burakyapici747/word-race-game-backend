@@ -14,7 +14,7 @@ public interface UserService {
 
     Optional<User> getUserById(Long id);
 
-    Optional<Game> getAllGameByUserId(Long userId);
+    Optional<List<Game>> getAllGamesByUserId(Long userId);
 
     Optional<List<Room>> getAllRoomsByUserId(Long userId);
 
@@ -33,6 +33,6 @@ public interface UserService {
 
     //DELETE OPERATIONS
 
-    boolean deleteUserById(Long userId);
+    boolean deleteUserById(Long id);
 
 }
