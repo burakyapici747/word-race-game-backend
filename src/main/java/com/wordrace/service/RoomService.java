@@ -3,7 +3,7 @@ package com.wordrace.service;
 import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.Word;
-import com.wordrace.result.DataResult;
+import com.wordrace.result.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +22,6 @@ public interface RoomService {
     DataResult<Room> updateRoomByRoomId(Long roomId, Room room);
 
     //Delete Operations
-    DataResult<Boolean> deleteRoomById(Long id);
+    Result deleteRoomById(Long id);
 
 }
