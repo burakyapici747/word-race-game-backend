@@ -23,7 +23,7 @@ public class User {
     private String password;
 
     @Column(name = "nickname")
-    private String nickname;
+    private String nickName;
 
     @OneToMany(mappedBy = "user")
     private List<UserScore> userScore;
