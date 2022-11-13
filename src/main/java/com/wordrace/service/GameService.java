@@ -20,11 +20,11 @@ public interface GameService {
     DataResult<List<User>> getAllUsersByGameId(Long gameId);
 
     //Post Operations
-    DataResult<Game> createGame(Long roomId);
-    DataResult<Word> addWordToGame(List<Word> words);
+    DataResult<Game> createGame(Game game);
+    DataResult<Game> addWordToGameByGameId(List<Word> words, Long gameId);
 
     //Put Operations
-    DataResult<Game> updateTotalScoreById(Long id, int totalScore);
+    DataResult<Game> updateTotalScoreByGameId(Long gameId, int totalScore);
 
     //Delete Operations
     Result deleteGameById(Long id);
