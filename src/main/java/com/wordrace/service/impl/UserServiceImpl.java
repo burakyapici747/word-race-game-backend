@@ -17,6 +17,7 @@ import com.wordrace.result.SuccessResult;
 import com.wordrace.service.UserService;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 //TODO: ISLEMLERIMDE EXCEPTION HANDLING YOK CUNKU NASIL YAPMAM GEREKTIGI HAKKINDA DUSUNUYORUM!!!
 
@@ -119,12 +120,12 @@ public class UserServiceImpl implements UserService {
 
         if(!userToUpdate.getNickname().equals(user.getNickname())){
 
-            boolean isNickNameAlreadyExist = userRepository.findUserByNickname(user.getNickname())
-                    .isPresent();
+            final Optional<User> hasSameNickNameUser = userRepository.findUserByNickname(user.getNickname());
 
-            if(isNickNameAlreadyExist){
+            if(hasSameNickNameUser.isPresent() && hasSameNickNameUser.get().getId() != id){
                 return new SuccessDataResult<>(null, ResultMessages.ALREADY_EXIST);
             }
+
             userToUpdate.setNickname(user.getNickname());
             userRepository.save(userToUpdate);
         }

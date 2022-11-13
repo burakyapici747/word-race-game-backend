@@ -68,10 +68,10 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public DataResult<Room> updateRoomByRoomId(Long roomId, Room room) {
         final Room roomToUpdate = findRoomById(roomId);
-        boolean isRoomNameAlreadyExist = roomRepository.findByRoomName(room.getRoomName())
-                .isPresent();
 
-        if(isRoomNameAlreadyExist){
+        final Optional<Room> hasSameNameRoom = roomRepository.findByRoomName(room.getRoomName());
+
+        if(hasSameNameRoom.isPresent() && hasSameNameRoom.get().getId() != roomId){
             return new SuccessDataResult<>(null, RoomMessages.ROOM_NAME_ALREADY_EXIST);
         }
 
