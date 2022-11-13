@@ -11,10 +11,12 @@ import com.wordrace.result.Result;
 import com.wordrace.result.SuccessDataResult;
 import com.wordrace.result.SuccessResult;
 import com.wordrace.service.RoomService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;

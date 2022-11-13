@@ -1,6 +1,5 @@
 package com.wordrace.model;
 
-
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,7 +8,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "word")
-public class Word {
+public class Word extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

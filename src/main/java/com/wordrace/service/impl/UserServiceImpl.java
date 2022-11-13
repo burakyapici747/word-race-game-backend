@@ -118,15 +118,15 @@ public class UserServiceImpl implements UserService {
     public DataResult<User> updateUser(Long id, User user) {
         final User userToUpdate = findUserById(id);
 
-        if(!userToUpdate.getNickname().equals(user.getNickname())){
+        if(!userToUpdate.getNickName().equals(user.getNickName())){
 
-            final Optional<User> hasSameNickNameUser = userRepository.findUserByNickname(user.getNickname());
+            final Optional<User> hasSameNickNameUser = userRepository.findUserByNickName(user.getNickName());
 
             if(hasSameNickNameUser.isPresent() && hasSameNickNameUser.get().getId() != id){
                 return new SuccessDataResult<>(null, ResultMessages.ALREADY_EXIST);
             }
 
-            userToUpdate.setNickname(user.getNickname());
+            userToUpdate.setNickName(user.getNickName());
             userRepository.save(userToUpdate);
         }
         return new SuccessDataResult<>(userToUpdate, ResultMessages.SUCCESS_UPDATE);
