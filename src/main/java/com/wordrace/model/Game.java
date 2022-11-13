@@ -20,7 +20,7 @@ public class Game {
     private Room room;
 
     @OneToMany(mappedBy = "game")
-    private List<UserScore> userScore;
+    private List<UserScore> userScores;
 
     @ManyToMany(mappedBy = "games")
     private List<Word> words;
