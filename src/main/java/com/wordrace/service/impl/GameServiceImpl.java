@@ -60,8 +60,8 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public DataResult<Game> createGame(Game game) {
-        final Game createdGame = gameRepository.save(game);
-        return new SuccessDataResult<>(createdGame, ResultMessages.EMPTY);
+        final Game gameToCreate = gameRepository.save(game);
+        return new SuccessDataResult<>(gameToCreate, ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
