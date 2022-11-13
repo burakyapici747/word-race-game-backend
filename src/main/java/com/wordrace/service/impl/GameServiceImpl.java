@@ -1,6 +1,7 @@
 package com.wordrace.service.impl;
 
 import com.wordrace.constant.ResultMessages;
+import com.wordrace.constant.RoomMessages;
 import com.wordrace.model.*;
 import com.wordrace.repository.GameRepository;
 import com.wordrace.result.DataResult;
@@ -58,18 +59,23 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<Game> createGame(Long roomId) {
-        return null;
+    public DataResult<Game> createGame(Game game) {
+        final Game createdGame = gameRepository.save(game);
+        return new SuccessDataResult<>(createdGame, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<Word> addWordToGame(List<Word> words) {
-        return null;
+    public DataResult<Game> addWordToGameByGameId(List<Word> words, Long gameId) {
+        final Game game = findById(gameId);
+        game.setWords(words);
+        return new SuccessDataResult<>(game, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<Game> updateTotalScoreById(Long id, int totalScore) {
-        return null;
+    public DataResult<Game> updateTotalScoreByGameId(Long gameId, int totalScore) {
+        final Game game = findById(gameId);
+        game.setTotalScore(totalScore);
+        return new SuccessDataResult<>(game, ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
