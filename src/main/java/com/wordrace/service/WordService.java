@@ -2,6 +2,8 @@ package com.wordrace.service;
 
 import com.wordrace.model.Word;
 import com.wordrace.result.DataResult;
+import com.wordrace.result.Result;
+
 import java.util.List;
 
 public interface WordService {
@@ -14,9 +16,9 @@ public interface WordService {
     DataResult<Word> createWord(Word word);
 
     //PUT OPERATIONS
-    DataResult<Word> updateWord(Long id, Word word);
+    DataResult<Word> updateWordById(Long id, Word word);
 
     //DELETE OPERATIONS
-    DataResult<Boolean> deleteWordById(Long id);
+    Result deleteWordById(Long id);
 
 }
