@@ -1,8 +1,12 @@
 package com.wordrace.service.impl;
 
 import com.wordrace.constant.ResultMessages;
+import com.wordrace.exception.EntityAlreadyExistException;
+import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Word;
 import com.wordrace.repository.WordRepository;
+import com.wordrace.request.word.WordPostRequest;
+import com.wordrace.request.word.WordPutRequest;
 import com.wordrace.result.*;
 import com.wordrace.service.WordService;
 import org.springframework.stereotype.Service;
@@ -33,24 +37,25 @@ public class WordServiceImpl implements WordService {
     }
 
     @Override
-    public DataResult<Word> createWord(Word word) {
-        final Word createdWord = wordRepository.save(word);
-        return new SuccessDataResult<>(createdWord, ResultMessages.SUCCESS_CREATE);
+    public DataResult<Word> createWord(WordPostRequest wordPostRequest) {
+        Word word = new Word();
+        word.setText(wordPostRequest.getText());
+        word.setLanguage(wordPostRequest.getLanguage());
+        return new SuccessDataResult<>(word, ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<Word> updateWordById(Long id, Word word) {
+    public DataResult<Word> updateWordById(Long id, WordPutRequest wordPutRequest) {
         final Word wordToUpdate = findById(id);
-        final Optional<Word> optionalWordToUpdateByText = wordRepository.findByText(word.getText());
+        final Optional<Word> optionalWordToUpdateByText = wordRepository.findByText(wordPutRequest.getText());
         boolean isWordAlreadyExist = optionalWordToUpdateByText.isPresent()
                 && !id.equals(optionalWordToUpdateByText.get().getId());
 
         if(isWordAlreadyExist){
-            return new SuccessDataResult<>(null, ResultMessages.ALREADY_EXIST);
+            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
         }
 
-        wordRepository.save(wordToUpdate);
-        return new SuccessDataResult<>(optionalWordToUpdateByText.get(), ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResult<>(wordRepository.save(wordToUpdate), ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
@@ -61,7 +66,7 @@ public class WordServiceImpl implements WordService {
     }
 
     private Word findById(Long id){
-        Optional<Word> wordOptional = wordRepository.findById(id);
-        return wordOptional.get();
+        return wordRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 }

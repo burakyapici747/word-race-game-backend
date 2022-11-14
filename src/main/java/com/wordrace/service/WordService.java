@@ -1,6 +1,8 @@
 package com.wordrace.service;
 
 import com.wordrace.model.Word;
+import com.wordrace.request.word.WordPostRequest;
+import com.wordrace.request.word.WordPutRequest;
 import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 
@@ -13,10 +15,10 @@ public interface WordService {
     DataResult<Word> getWordById(Long id);
 
     //POST OPERATIONS
-    DataResult<Word> createWord(Word word);
+    DataResult<Word> createWord(WordPostRequest wordPostRequest);
 
     //PUT OPERATIONS
-    DataResult<Word> updateWordById(Long id, Word word);
+    DataResult<Word> updateWordById(Long id, WordPutRequest wordPutRequest);
 
     //DELETE OPERATIONS
     Result deleteWordById(Long id);
