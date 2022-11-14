@@ -5,6 +5,9 @@ import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.User;
 import com.wordrace.model.Word;
+import com.wordrace.request.game.GamePostRequest;
+import com.wordrace.request.game.GamePostWordRequest;
+import com.wordrace.request.game.GamePutRequest;
 import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 
@@ -20,11 +23,11 @@ public interface GameService {
     DataResult<List<User>> getAllUsersByGameId(Long gameId);
 
     //Post Operations
-    DataResult<Game> createGame(Game game);
-    DataResult<Game> addWordToGameByGameId(List<Word> words, Long gameId);
+    DataResult<Game> createGame(GamePostRequest gamePostRequest);
+    DataResult<Game> addWordToGameByGameId(Long gameId, GamePostWordRequest gamePostWordRequest);
 
     //Put Operations
-    DataResult<Game> updateTotalScoreByGameId(Long gameId, int totalScore);
+    DataResult<Game> updateTotalScoreByGameId(Long gameId, GamePutRequest gamePutRequest);
 
     //Delete Operations
     Result deleteGameById(Long id);

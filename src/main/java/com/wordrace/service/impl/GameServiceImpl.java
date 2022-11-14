@@ -1,9 +1,13 @@
 package com.wordrace.service.impl;
 
 import com.wordrace.constant.ResultMessages;
-import com.wordrace.constant.RoomMessages;
+import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.*;
 import com.wordrace.repository.GameRepository;
+import com.wordrace.repository.RoomRepository;
+import com.wordrace.request.game.GamePostRequest;
+import com.wordrace.request.game.GamePostWordRequest;
+import com.wordrace.request.game.GamePutRequest;
 import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 import com.wordrace.result.SuccessDataResult;
@@ -19,9 +23,11 @@ import java.util.Optional;
 public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
+    private final RoomRepository roomRepository;
 
-    public GameServiceImpl(GameRepository gameRepository) {
+    public GameServiceImpl(GameRepository gameRepository, RoomRepository roomRepository) {
         this.gameRepository = gameRepository;
+        this.roomRepository = roomRepository;
     }
 
     @Override
@@ -59,23 +65,34 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<Game> createGame(Game game) {
-        final Game gameToCreate = gameRepository.save(game);
+    public DataResult<Game> createGame(GamePostRequest gamePostRequest) {
+        final Room room = findRoomById(gamePostRequest.getRoomId());
+        final Game gameToCreate = new Game();
+        gameToCreate.setRoom(room);
         return new SuccessDataResult<>(gameToCreate, ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<Game> addWordToGameByGameId(List<Word> words, Long gameId) {
+    public DataResult<Game> addWordToGameByGameId(Long gameId, GamePostWordRequest gamePostWordRequest) {
+        //TODO: Buradaki word modeli için game listesine herhangi bir ekleme yapılmadı.
+        // Sistem değiştirilebilir.
         final Game game = findById(gameId);
+        List<Word> words = new ArrayList<>();
+        gamePostWordRequest.getWords().forEach(word -> {
+            Word newWord = new Word();
+            newWord.setText(word.getText());
+            newWord.setLanguage(word.getLanguage());
+            words.add(newWord);
+        });
         game.setWords(words);
-        return new SuccessDataResult<>(game, ResultMessages.EMPTY);
+        return new SuccessDataResult<>(gameRepository.save(game), ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<Game> updateTotalScoreByGameId(Long gameId, int totalScore) {
+    public DataResult<Game> updateTotalScoreByGameId(Long gameId, GamePutRequest gamePutRequest) {
         final Game game = findById(gameId);
-        game.setTotalScore(totalScore);
-        return new SuccessDataResult<>(game, ResultMessages.SUCCESS_UPDATE);
+        game.setTotalScore(gamePutRequest.getTotalScore());
+        return new SuccessDataResult<>(gameRepository.save(game), ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
@@ -86,7 +103,12 @@ public class GameServiceImpl implements GameService {
     }
 
     private Game findById(Long id){
-        Optional<Game> gameOptional = gameRepository.findById(id);
-        return gameOptional.get();
+        return gameRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+    }
+
+    private Room findRoomById(Long id){
+        return roomRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 }
