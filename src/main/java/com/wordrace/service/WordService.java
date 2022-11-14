@@ -1,24 +1,26 @@
 package com.wordrace.service;
 
 import com.wordrace.model.Word;
+import com.wordrace.request.word.WordPostRequest;
+import com.wordrace.request.word.WordPutRequest;
+import com.wordrace.result.DataResult;
+import com.wordrace.result.Result;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface WordService {
 
     //GET OPERATIONS
-    Optional<List<Word>> getAllWords();
-    Optional<Word> getWordById(Long id);
+    DataResult<List<Word>> getAllWords();
+    DataResult<Word> getWordById(Long id);
 
     //POST OPERATIONS
-    Optional<Word> createWord(Word word);
+    DataResult<Word> createWord(WordPostRequest wordPostRequest);
 
     //PUT OPERATIONS
-    Optional<Word> updateWord(Long id, Word word);
+    DataResult<Word> updateWordById(Long id, WordPutRequest wordPutRequest);
 
     //DELETE OPERATIONS
-    boolean deleteWordById(Long id);
-
+    Result deleteWordById(Long id);
 
 }

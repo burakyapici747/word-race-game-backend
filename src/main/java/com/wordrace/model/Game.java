@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "game")
-public class Game {
+public class Game extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,7 +20,7 @@ public class Game {
     private Room room;
 
     @OneToMany(mappedBy = "game")
-    private List<UserScore> userScore;
+    private List<UserScore> userScores;
 
     @ManyToMany(mappedBy = "games")
     private List<Word> words;

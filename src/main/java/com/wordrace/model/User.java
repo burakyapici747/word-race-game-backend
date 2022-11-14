@@ -9,7 +9,7 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "user")
-public class User {
+public class User extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,7 +23,7 @@ public class User {
     private String password;
 
     @Column(name = "nickname")
-    private String nickname;
+    private String nickName;
 
     @OneToMany(mappedBy = "user")
     private List<UserScore> userScore;

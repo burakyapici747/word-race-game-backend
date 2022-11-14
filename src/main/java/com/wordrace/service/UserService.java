@@ -3,35 +3,42 @@ package com.wordrace.service;
 import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.User;
+import com.wordrace.request.user.UserPostJoinRoomRequest;
+import com.wordrace.request.user.UserPostRequest;
+import com.wordrace.request.user.UserPostScoreRequest;
+import com.wordrace.request.user.UserPutRequest;
+import com.wordrace.result.DataResult;
+import com.wordrace.result.Result;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
 
     //GET OPERATIONS
-    Optional<List<User>> getAllUsers();
+    DataResult<List<User>> getAllUsers();
 
-    Optional<User> getUserById(Long id);
+    DataResult<User> getUserById(Long id);
 
-    Optional<List<Game>> getAllGamesByUserId(Long userId);
+    DataResult<List<Game>> getAllGamesByUserId(Long userId);
 
-    Optional<List<Room>> getAllRoomsByUserId(Long userId);
+    DataResult<List<Room>> getAllRoomsByUserId(Long userId);
 
 
     //POST OPERATIONS
 
-    Optional<User> createUser(User user);
+    DataResult<User> createUser(UserPostRequest userPostRequest);
 
-    Optional<Room> joinRoom(Long userId, Long roomId);
+    DataResult<Room> joinRoom(UserPostJoinRoomRequest userPostJoinRoomRequest);
 
-    Optional<Room> addScoreToUser(Long userId, Long gameId, int score);
+    DataResult<Room> addScoreToUser(UserPostScoreRequest userPostScoreRequest);
 
     //PUT OPERATIONS
 
-    Optional<User> updateUser(Long id, User user);
+    DataResult<User> updateUser(Long id, UserPutRequest userPutRequest);
 
     //DELETE OPERATIONS
 
-    boolean deleteUserById(Long id);
+    Result deleteUserById(Long id);
 
 }

@@ -5,26 +5,31 @@ import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.User;
 import com.wordrace.model.Word;
+import com.wordrace.request.game.GamePostRequest;
+import com.wordrace.request.game.GamePostWordRequest;
+import com.wordrace.request.game.GamePutRequest;
+import com.wordrace.result.DataResult;
+import com.wordrace.result.Result;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface GameService {
 
     //Get Operations
-    Optional<List<Game>> getAllGames();
-    Optional<Game> getGameById(Long id);
-    Optional<Word> getWordByGameId(Long gameId);
-    Optional<Room> getRoomByGameId(Long gameId);
-    Optional<List<User>> getUsersByGameId(Long gameId);
+    DataResult<List<Game>> getAllGames();
+    DataResult<Game> getGameById(Long id);
+    DataResult<List<Word>> getAllWordsByGameId(Long gameId);
+    DataResult<Room> getRoomByGameId(Long gameId);
+    DataResult<List<User>> getAllUsersByGameId(Long gameId);
 
     //Post Operations
-    Optional<Game> createGame(Long roomId);
-    Optional<Word> addWordToGame(List<Word> words);
+    DataResult<Game> createGame(GamePostRequest gamePostRequest);
+    DataResult<Game> addWordToGameByGameId(Long gameId, GamePostWordRequest gamePostWordRequest);
 
     //Put Operations
-    Optional<Game> updateTotalScoreById(Long id, int totalScore);
+    DataResult<Game> updateTotalScoreByGameId(Long gameId, GamePutRequest gamePutRequest);
 
     //Delete Operations
-    boolean deleteGameById(Long id);
+    Result deleteGameById(Long id);
+
 }

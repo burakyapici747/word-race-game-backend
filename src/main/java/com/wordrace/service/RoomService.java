@@ -3,25 +3,26 @@ package com.wordrace.service;
 import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.Word;
-
+import com.wordrace.request.room.RoomPostRequest;
+import com.wordrace.request.room.RoomPutRequest;
+import com.wordrace.result.*;
 import java.util.List;
-import java.util.Optional;
 
 public interface RoomService {
 
     //Get Operations
-    Optional<List<Room>> getAllRooms();
-    Optional<Room> getRoomById(Long id);
-    Optional<Game> getGameByRoomId(Long roomId);
-    Optional<List<Word>> getWordsByRoomId(Long roomId);
+    DataResult<List<Room>> getAllRooms();
+    DataResult<Room> getRoomById(Long id);
+    DataResult<Game> getGameByRoomId(Long roomId);
+    DataResult<List<Word>> getWordsByRoomId(Long roomId);
 
     //Post Operations
-    Optional<Room> createRoom(Room room);
+    DataResult<Room> createRoom(RoomPostRequest roomPostRequest);
 
     //Put Operations
-    Optional<Room> updateRoomByRoomId(Long roomId, Room room);
+    DataResult<Room> updateRoomById(Long id, RoomPutRequest roomPutRequest);
 
     //Delete Operations
-    boolean deleteRoomById(Long id);
+    Result deleteRoomById(Long id);
 
 }
