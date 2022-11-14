@@ -3,6 +3,8 @@ package com.wordrace.service.impl;
 import com.wordrace.constant.ResultMessages;
 import com.wordrace.constant.RoomMessages;
 import com.wordrace.constant.UserMessages;
+import com.wordrace.exception.EntityAlreadyExistException;
+import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.User;
@@ -10,6 +12,10 @@ import com.wordrace.model.UserScore;
 import com.wordrace.repository.RoomRepository;
 import com.wordrace.repository.UserRepository;
 import com.wordrace.repository.UserScoreRepository;
+import com.wordrace.request.user.UserPostJoinRoomRequest;
+import com.wordrace.request.user.UserPostRequest;
+import com.wordrace.request.user.UserPostScoreRequest;
+import com.wordrace.request.user.UserPutRequest;
 import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 import com.wordrace.result.SuccessDataResult;
@@ -50,8 +56,9 @@ public class UserServiceImpl implements UserService {
     public DataResult<List<Game>> getAllGamesByUserId(Long userId) {
         final User user = findUserById(userId);
 
-        List<Game> userGames = user.getRooms().stream()
-                .map(room -> room.getGame())
+        List<Game> userGames = user.getRooms()
+                .stream()
+                .map(Room::getGame)
                 .toList();
 
         return new SuccessDataResult<>(userGames, ResultMessages.EMPTY);
@@ -65,48 +72,56 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public DataResult<User> createUser(final User user) {
-        boolean isEmailExists = userRepository.findUserByEmail(user.getEmail()).isPresent();
+    public DataResult<User> createUser(UserPostRequest userPostRequest) {
+        boolean isEmailExists = userRepository.findUserByEmail(userPostRequest.getEmail())
+                .isPresent();
 
         if(isEmailExists){
-            return new SuccessDataResult<>(null, ResultMessages.ALREADY_EXIST);
+            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
         }
+
+        final User user = new User();
+        user.setEmail(userPostRequest.getEmail());
+        user.setPassword(userPostRequest.getPassword());
 
         return new SuccessDataResult<>(userRepository.save(user), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<Room> joinRoom(Long userId, Long roomId) {
-        final User user = findUserById(userId);
-        final Room room = roomRepository.findById(roomId).orElseThrow(() -> new RuntimeException(ResultMessages.NOT_FOUND_DATA));
+    public DataResult<Room> joinRoom(UserPostJoinRoomRequest userPostJoinRoomRequest) {
+        final User user = findUserById(userPostJoinRoomRequest.getUserId());
+        final Room room = findRoomById(userPostJoinRoomRequest.getRoomId());
 
+        //TODO: "ROOM_CAPACITY_IS_FULL" için belki exception olusturulabilir. Bunun için düşün...
         if(room.getUsers().size() + 1 > room.getCapacity()){
             return new SuccessDataResult<>(null, RoomMessages.ROOM_CAPACITY_IS_FULL);
         }
 
         room.getUsers().add(user);
         roomRepository.save(room);
-
         return new SuccessDataResult<>(room, UserMessages.ROOM_JOIN_SUCCESSFULLY);
     }
 
     @Override
-    public DataResult<Room> addScoreToUser(Long userId, Long gameId, int score) {
-        final User user = findUserById(userId);
+    public DataResult<Room> addScoreToUser(UserPostScoreRequest userPostScoreRequest) {
+        final User user = findUserById(userPostScoreRequest.getUserId());
 
-        final List<Room> filteredRooms = user.getRooms().stream()
-                .filter(room -> room.getGame().getId() == gameId)
+        final List<Room> filteredRooms = user.getRooms()
+                .stream()
+                .filter(room -> room.getGame().getId().equals(userPostScoreRequest.getGameId()))
                 .toList();
 
         if(filteredRooms.size() == 0){
-            return new SuccessDataResult<>(null, ResultMessages.NOT_FOUND_DATA);
+            throw new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA);
         }
+
         final Room room = filteredRooms.get(0);
 
         UserScore newScore = new UserScore();
         newScore.setUser(user);
         newScore.setGame(room.getGame());
-        newScore.setScore(score);
+        newScore.setScore(userPostScoreRequest.getScore());
+
         user.getUserScore().add(newScore);
 
         userRepository.save(user);
@@ -115,18 +130,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public DataResult<User> updateUser(Long id, User user) {
+    public DataResult<User> updateUser(Long id, UserPutRequest userPutRequest) {
         final User userToUpdate = findUserById(id);
 
-        if(!userToUpdate.getNickName().equals(user.getNickName())){
+        if(!userToUpdate.getNickName().equals(userPutRequest.getNickName())){
 
-            final Optional<User> hasSameNickNameUser = userRepository.findUserByNickName(user.getNickName());
+            final Optional<User> hasSameNickNameUser = userRepository.findUserByNickName(userPutRequest.getNickName());
 
-            if(hasSameNickNameUser.isPresent() && hasSameNickNameUser.get().getId() != id){
-                return new SuccessDataResult<>(null, ResultMessages.ALREADY_EXIST);
+            if(hasSameNickNameUser.isPresent() && !hasSameNickNameUser.get().getId().equals(id)){
+                throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
             }
 
-            userToUpdate.setNickName(user.getNickName());
+            userToUpdate.setNickName(userPutRequest.getNickName());
             userRepository.save(userToUpdate);
         }
         return new SuccessDataResult<>(userToUpdate, ResultMessages.SUCCESS_UPDATE);
@@ -142,6 +157,12 @@ public class UserServiceImpl implements UserService {
     }
 
     private User findUserById(Long id){
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException(ResultMessages.NOT_FOUND_DATA));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+    }
+
+    private Room findRoomById(Long id){
+        return roomRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 }

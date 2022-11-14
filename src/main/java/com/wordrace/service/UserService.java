@@ -3,6 +3,10 @@ package com.wordrace.service;
 import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.User;
+import com.wordrace.request.user.UserPostJoinRoomRequest;
+import com.wordrace.request.user.UserPostRequest;
+import com.wordrace.request.user.UserPostScoreRequest;
+import com.wordrace.request.user.UserPutRequest;
 import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 
@@ -23,15 +27,15 @@ public interface UserService {
 
     //POST OPERATIONS
 
-    DataResult<User> createUser(final User user);
+    DataResult<User> createUser(UserPostRequest userPostRequest);
 
-    DataResult<Room> joinRoom(Long userId, Long roomId);
+    DataResult<Room> joinRoom(UserPostJoinRoomRequest userPostJoinRoomRequest);
 
-    DataResult<Room> addScoreToUser(Long userId, Long gameId, int score);
+    DataResult<Room> addScoreToUser(UserPostScoreRequest userPostScoreRequest);
 
     //PUT OPERATIONS
 
-    DataResult<User> updateUser(Long id, User user);
+    DataResult<User> updateUser(Long id, UserPutRequest userPutRequest);
 
     //DELETE OPERATIONS
 
