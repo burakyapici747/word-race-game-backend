@@ -2,10 +2,14 @@ package com.wordrace.service.impl;
 
 import com.wordrace.constant.ResultMessages;
 import com.wordrace.constant.RoomMessages;
+import com.wordrace.exception.EntityAlreadyExistException;
+import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.Word;
 import com.wordrace.repository.RoomRepository;
+import com.wordrace.request.room.RoomPostRequest;
+import com.wordrace.request.room.RoomPutRequest;
 import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 import com.wordrace.result.SuccessDataResult;
@@ -56,32 +60,26 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public DataResult<Room> createRoom(Room room) {
-        boolean isRoomNameAlreadyExist = roomRepository.findByRoomName(room.getRoomName())
+    public DataResult<Room> createRoom(RoomPostRequest roomPostRequest) {
+        boolean isRoomNameAlreadyExist = roomRepository.findByRoomName(roomPostRequest.getRoomName())
                 .isPresent();
 
         if(isRoomNameAlreadyExist){
-            return new SuccessDataResult<>(null, RoomMessages.ROOM_NAME_ALREADY_EXIST);
+            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
         }
+
+        final Room room = new Room();
+        room.setCreatorId(roomPostRequest.getCreatorId());
+        room.setRoomName(roomPostRequest.getRoomName());
+        room.setCapacity(roomPostRequest.getCapacity());
 
         return new SuccessDataResult<>(roomRepository.save(room), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<Room> updateRoomByRoomId(Long roomId, Room room) {
-        final Room roomToUpdate = findRoomById(roomId);
-
-        final Optional<Room> hasSameNameRoom = roomRepository.findByRoomName(room.getRoomName());
-
-        if(hasSameNameRoom.isPresent() && hasSameNameRoom.get().getId() != roomId){
-            return new SuccessDataResult<>(null, RoomMessages.ROOM_NAME_ALREADY_EXIST);
-        }
-
-        roomToUpdate.setCreatorId(room.getCreatorId());
-        roomToUpdate.setRoomName(room.getRoomName());
-        roomToUpdate.setWinnerId(room.getWinnerId());
-        roomToUpdate.setCapacity(room.getCapacity());
-
+    public DataResult<Room> updateRoomById(Long id, RoomPutRequest roomPutRequest) {
+        final Room roomToUpdate = findRoomById(id);
+        roomToUpdate.setWinnerId(roomPutRequest.getWinnerId());
         return new SuccessDataResult<>(roomRepository.save(roomToUpdate), ResultMessages.SUCCESS_UPDATE);
     }
 
@@ -94,10 +92,9 @@ public class RoomServiceImpl implements RoomService {
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-
     private Room findRoomById(Long id){
         return roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
 }
