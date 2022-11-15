@@ -2,8 +2,8 @@ package com.wordrace.result;
 
 public abstract class Result {
 
-    protected boolean isSuccess;
-    protected String message;
+    public boolean isSuccess;
+    public String message;
 
     public Result(boolean isSuccess, String message){
         this.isSuccess = isSuccess;
