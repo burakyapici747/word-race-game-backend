@@ -1,6 +1,7 @@
 package com.wordrace.service.impl;
 
 import com.wordrace.constant.ResultMessages;
+import com.wordrace.dto.UserScoreDto;
 import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Game;
 import com.wordrace.model.User;
@@ -15,8 +16,11 @@ import com.wordrace.result.Result;
 import com.wordrace.result.SuccessDataResult;
 import com.wordrace.result.SuccessResult;
 import com.wordrace.service.UserScoreService;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -26,6 +30,8 @@ public class UserScoreServiceImpl implements UserScoreService {
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
 
+    private ModelMapper modelMapper;
+
     public UserScoreServiceImpl(UserScoreRepository userScoreRepository, GameRepository gameRepository, UserRepository userRepository) {
         this.userScoreRepository = userScoreRepository;
         this.gameRepository = gameRepository;
@@ -33,31 +39,35 @@ public class UserScoreServiceImpl implements UserScoreService {
     }
 
     @Override
-    public DataResult<List<UserScore>> getAllUserScoresByGameId(Long gameId) {
-        return new SuccessDataResult<>(findUserScoreByGameId(gameId), ResultMessages.EMPTY);
+    public DataResult<List<UserScoreDto>> getAllUserScoresByGameId(Long gameId) {
+        List<UserScoreDto> userScoreDtos = findUserScoreByGameId(gameId)
+                .stream().map(userScore -> modelMapper.map(userScore, UserScoreDto.class))
+                .toList();
+
+        return new SuccessDataResult<>(userScoreDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<UserScore> getUserScoreByUserIdAndGameId(Long userId, Long gameId) {
-        return new SuccessDataResult<>(findUserScoreByUserIdAndGameId(userId, gameId), ResultMessages.EMPTY);
+    public DataResult<UserScoreDto> getUserScoreByUserIdAndGameId(Long userId, Long gameId) {
+        return new SuccessDataResult<>(modelMapper.map(findUserScoreByUserIdAndGameId(userId, gameId), UserScoreDto.class), ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<UserScore> createUserScore(UserScorePostRequest userScorePostRequest) {
+    public DataResult<UserScoreDto> createUserScore(UserScorePostRequest userScorePostRequest) {
         UserScore userScore = new UserScore();
         final User user = findUserById(userScorePostRequest.getUserId());
         final Game game = findGameById(userScorePostRequest.getGameId());
         userScore.setUser(user);
         userScore.setGame(game);
         userScore.setScore(userScorePostRequest.getScore());
-        return new SuccessDataResult<>(userScoreRepository.save(userScore), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResult<>(modelMapper.map(userScoreRepository.save(userScore), UserScoreDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<UserScore> updateUserScore(UserScorePutRequest userScorePutRequest) {
+    public DataResult<UserScoreDto> updateUserScore(UserScorePutRequest userScorePutRequest) {
         UserScore userScore = findUserScoreByUserIdAndGameId(userScorePutRequest.getUserId(), userScorePutRequest.getGameId());
         userScore.setScore(userScorePutRequest.getScore());
-        return new SuccessDataResult<>(userScoreRepository.save(userScore), ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResult<>(modelMapper.map(userScoreRepository.save(userScore), UserScoreDto.class), ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
