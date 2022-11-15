@@ -21,13 +21,13 @@ public class UserScoreController {
         this.userScoreService = userScoreService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<DataResult<List<UserScoreDto>>> getAllUserScoresByGameId(@PathVariable("id") Long gameId){
+    @GetMapping("/{gameId}")
+    public ResponseEntity<DataResult<List<UserScoreDto>>> getAllUserScoresByGameId(@PathVariable("gameId") Long gameId){
         return ResponseEntity.ok(userScoreService.getAllUserScoresByGameId(gameId));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<DataResult<List<UserScoreDto>>> getAllUserScoresByUserId(@PathVariable("id") Long userId){
+    @GetMapping("/{userId}")
+    public ResponseEntity<DataResult<List<UserScoreDto>>> getAllUserScoresByUserId(@PathVariable("userId") Long userId){
         return ResponseEntity.ok(userScoreService.getAllUserScoresByUserId(userId));
     }
 
@@ -46,13 +46,13 @@ public class UserScoreController {
         return ResponseEntity.ok(userScoreService.updateUserScore(userScorePutRequest));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Result> deleteUserScoreByUserId(@PathVariable("id") Long userId){
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Result> deleteUserScoreByUserId(@PathVariable("userId") Long userId){
         return ResponseEntity.ok(userScoreService.deleteUserScoreByUserId(userId));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Result> deleteUserScoreByGameId(@PathVariable("id") Long gameId){
+    @DeleteMapping("/{gameId}")
+    public ResponseEntity<Result> deleteUserScoreByGameId(@PathVariable("gameId") Long gameId){
         return ResponseEntity.ok(userScoreService.deleteUserScoreByGameId(gameId));
     }
 

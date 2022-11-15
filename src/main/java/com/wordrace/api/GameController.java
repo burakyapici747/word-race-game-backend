@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(name = "/api/game")
+@RequestMapping("/api/game")
 public class GameController {
 
     private final GameService gameService;
