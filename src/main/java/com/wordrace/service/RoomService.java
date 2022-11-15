@@ -2,6 +2,7 @@ package com.wordrace.service;
 
 import com.wordrace.dto.GameDto;
 import com.wordrace.dto.RoomDto;
+import com.wordrace.dto.UserDto;
 import com.wordrace.dto.WordDto;
 import com.wordrace.request.room.RoomPostRequest;
 import com.wordrace.request.room.RoomPutRequest;
@@ -15,6 +16,7 @@ public interface RoomService {
     DataResult<RoomDto> getRoomById(Long id);
     DataResult<GameDto> getGameByRoomId(Long roomId);
     DataResult<List<WordDto>> getWordsByRoomId(Long roomId);
+    DataResult<List<UserDto>> getUsersByRoomId(Long roomId);
 
     //Post Operations
     DataResult<RoomDto> createRoom(RoomPostRequest roomPostRequest);

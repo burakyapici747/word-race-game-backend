@@ -3,6 +3,7 @@ package com.wordrace.service.impl;
 import com.wordrace.constant.ResultMessages;
 import com.wordrace.dto.GameDto;
 import com.wordrace.dto.RoomDto;
+import com.wordrace.dto.UserDto;
 import com.wordrace.dto.WordDto;
 import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
@@ -66,6 +67,16 @@ public class RoomServiceImpl implements RoomService {
                 .map(word-> modelMapper.map(word, WordDto.class))
                 .toList();
         return new SuccessDataResult<>(wordDtos, ResultMessages.EMPTY);
+    }
+
+    @Override
+    public DataResult<List<UserDto>> getUsersByRoomId(Long roomId) {
+        final Room room = findRoomById(roomId);
+        final List<UserDto> userDtos = room.getUsers()
+                .stream().map(user -> modelMapper.map(user, UserDto.class))
+                .toList();
+
+        return new SuccessDataResult<>(userDtos, ResultMessages.EMPTY);
     }
 
     @Override

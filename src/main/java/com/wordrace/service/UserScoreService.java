@@ -13,6 +13,7 @@ public interface UserScoreService {
 
     //GET OPERATIONS
     DataResult<List<UserScoreDto>> getAllUserScoresByGameId(Long gameId);
+    DataResult<List<UserScoreDto>> getAllUserScoresByUserId(Long userId);
     DataResult<UserScoreDto> getUserScoreByUserIdAndGameId(Long userId, Long gameId);
 
     //POST OPERATIONS
@@ -24,6 +25,6 @@ public interface UserScoreService {
     //DELETE OPERATIONS
     Result deleteUserScoreByUserId(Long userId);
     Result deleteUserScoreByGameId(Long gameId);
-    Result deleteUserScoreByUserAndGameId(Long userId, Long gameId);
+    Result deleteUserScoreByUserIdAndGameId(Long userId, Long gameId);
 
 }

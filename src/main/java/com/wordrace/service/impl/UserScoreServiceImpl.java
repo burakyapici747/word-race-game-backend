@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserScoreServiceImpl implements UserScoreService {
@@ -41,6 +42,15 @@ public class UserScoreServiceImpl implements UserScoreService {
     @Override
     public DataResult<List<UserScoreDto>> getAllUserScoresByGameId(Long gameId) {
         List<UserScoreDto> userScoreDtos = findUserScoreByGameId(gameId)
+                .stream().map(userScore -> modelMapper.map(userScore, UserScoreDto.class))
+                .toList();
+
+        return new SuccessDataResult<>(userScoreDtos, ResultMessages.EMPTY);
+    }
+
+    @Override
+    public DataResult<List<UserScoreDto>> getAllUserScoresByUserId(Long userId) {
+        List<UserScoreDto> userScoreDtos = findUserScoreByUserId(userId)
                 .stream().map(userScore -> modelMapper.map(userScore, UserScoreDto.class))
                 .toList();
 
@@ -85,7 +95,7 @@ public class UserScoreServiceImpl implements UserScoreService {
     }
 
     @Override
-    public Result deleteUserScoreByUserAndGameId(Long userId, Long gameId) {
+    public Result deleteUserScoreByUserIdAndGameId(Long userId, Long gameId) {
         final UserScore userScore = findUserScoreByUserIdAndGameId(userId, gameId);
         userScoreRepository.delete(userScore);
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
@@ -98,6 +108,11 @@ public class UserScoreServiceImpl implements UserScoreService {
 
     private List<UserScore> findUserScoreByGameId(Long gameId){
         return userScoreRepository.findByGameId(gameId)
+                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+    }
+
+    private List<UserScore> findUserScoreByUserId(Long userId){
+        return userScoreRepository.findByUserId(userId)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
