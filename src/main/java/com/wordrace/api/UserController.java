@@ -6,7 +6,7 @@ import com.wordrace.request.user.UserPostRequest;
 import com.wordrace.request.user.UserPostScoreRequest;
 import com.wordrace.request.user.UserPutRequest;
 import com.wordrace.result.*;
-import com.wordrace.service.impl.UserServiceImpl;
+import com.wordrace.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.List;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
-    public UserController(UserServiceImpl userService){
+    public UserController(UserService userService){
         this.userService = userService;
     }
 
