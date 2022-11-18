@@ -19,10 +19,7 @@ import com.wordrace.service.UserScoreService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserScoreServiceImpl implements UserScoreService {
@@ -31,12 +28,13 @@ public class UserScoreServiceImpl implements UserScoreService {
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    public UserScoreServiceImpl(UserScoreRepository userScoreRepository, GameRepository gameRepository, UserRepository userRepository) {
+    public UserScoreServiceImpl(UserScoreRepository userScoreRepository, GameRepository gameRepository, UserRepository userRepository, ModelMapper modelMapper) {
         this.userScoreRepository = userScoreRepository;
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -82,8 +80,8 @@ public class UserScoreServiceImpl implements UserScoreService {
 
     @Override
     public Result deleteUserScoreByUserId(Long userId) {
-        final UserScore userScore = findUserScoreById(userId);
-        userScoreRepository.delete(userScore);
+        final List<UserScore> userScore = findUserScoreByUserId(userId);
+        userScoreRepository.deleteAll(userScore);
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 

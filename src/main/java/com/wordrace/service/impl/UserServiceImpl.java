@@ -6,7 +6,6 @@ import com.wordrace.constant.UserMessages;
 import com.wordrace.dto.*;
 import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
-import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.User;
 import com.wordrace.model.UserScore;
@@ -16,16 +15,14 @@ import com.wordrace.request.user.UserPostJoinRoomRequest;
 import com.wordrace.request.user.UserPostRequest;
 import com.wordrace.request.user.UserPostScoreRequest;
 import com.wordrace.request.user.UserPutRequest;
-import com.wordrace.result.DataResult;
-import com.wordrace.result.Result;
-import com.wordrace.result.SuccessDataResult;
-import com.wordrace.result.SuccessResult;
+import com.wordrace.result.*;
 import com.wordrace.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 //TODO: ISLEMLERIMDE EXCEPTION HANDLING YOK CUNKU NASIL YAPMAM GEREKTIGI HAKKINDA DUSUNUYORUM!!!
 
@@ -35,11 +32,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    public UserServiceImpl(UserRepository userRepository, RoomRepository roomRepository){
+    public UserServiceImpl(UserRepository userRepository, RoomRepository roomRepository, ModelMapper modelMapper){
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -93,7 +91,6 @@ public class UserServiceImpl implements UserService {
         final User user = new User();
         user.setEmail(userPostRequest.getEmail());
         user.setPassword(userPostRequest.getPassword());
-
         return new SuccessDataResult<>(modelMapper.map(userRepository.save(user), UserDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
@@ -102,13 +99,19 @@ public class UserServiceImpl implements UserService {
         final User user = findUserById(userPostJoinRoomRequest.getUserId());
         final Room room = findRoomById(userPostJoinRoomRequest.getRoomId());
 
+        boolean isAlreadyUserInRoom = room.getUsers().stream()
+                .anyMatch(inRoomUser -> inRoomUser.getId().equals(user.getId()));
+
+        if(isAlreadyUserInRoom){
+            throw new EntityAlreadyExistException(RoomMessages.ROOM_USER_ALREADY_IN);
+        }
+
         //TODO: "ROOM_CAPACITY_IS_FULL" için belki exception olusturulabilir. Bunun için düşün...
         if(room.getUsers().size() + 1 > room.getCapacity()){
-            return new SuccessDataResult<>(null, RoomMessages.ROOM_CAPACITY_IS_FULL);
+            return new ErrorDataResult<>(null, RoomMessages.ROOM_CAPACITY_IS_FULL);
         }
-        room.getUsers().add(user);
-
-        return new SuccessDataResult<>(modelMapper.map(roomRepository.save(room), RoomDto.class), UserMessages.ROOM_JOIN_SUCCESSFULLY);
+        user.getRooms().add(room);
+        return new SuccessDataResult<>(modelMapper.map(userRepository.save(user), RoomDto.class), UserMessages.ROOM_JOIN_SUCCESSFULLY);
     }
 
     @Override
@@ -142,7 +145,7 @@ public class UserServiceImpl implements UserService {
     public DataResult<UserDto> updateUser(Long id, UserPutRequest userPutRequest) {
         final User userToUpdate = findUserById(id);
 
-        if(!userToUpdate.getNickName().equals(userPutRequest.getNickName())){
+        if(userToUpdate.getNickName() == null || (userToUpdate.getNickName() != null && !userToUpdate.getNickName().equals(userPutRequest.getNickName()))){
 
             final Optional<User> hasSameNickNameUser = userRepository.findUserByNickName(userPutRequest.getNickName());
 

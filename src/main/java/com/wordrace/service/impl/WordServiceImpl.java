@@ -12,7 +12,7 @@ import com.wordrace.result.*;
 import com.wordrace.service.WordService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -20,10 +20,11 @@ import java.util.Optional;
 public class WordServiceImpl implements WordService {
 
     private final WordRepository wordRepository;
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    public WordServiceImpl(WordRepository wordRepository) {
+    public WordServiceImpl(WordRepository wordRepository, ModelMapper modelMapper) {
         this.wordRepository = wordRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -42,22 +43,33 @@ public class WordServiceImpl implements WordService {
 
     @Override
     public DataResult<WordDto> createWord(WordPostRequest wordPostRequest) {
+        boolean isAnySameWord = wordRepository.findByTextAndAndLanguage(wordPostRequest.getText(), wordPostRequest.getLanguage())
+                .isPresent();
+
+        if(isAnySameWord)
+            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
+
         Word word = new Word();
+
         word.setText(wordPostRequest.getText());
         word.setLanguage(wordPostRequest.getLanguage());
-        return new SuccessDataResult<>(modelMapper.map(word, WordDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResult<>(modelMapper.map(wordRepository.save(word), WordDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
     public DataResult<WordDto> updateWordById(Long id, WordPutRequest wordPutRequest) {
         final Word wordToUpdate = findById(id);
-        final Optional<Word> optionalWordToUpdateByText = wordRepository.findByText(wordPutRequest.getText());
-        boolean isWordAlreadyExist = optionalWordToUpdateByText.isPresent()
-                && !id.equals(optionalWordToUpdateByText.get().getId());
 
-        if(isWordAlreadyExist){
+        boolean isAnySameWord = wordRepository
+                .findByTextAndAndLanguage(wordPutRequest.getText(), wordPutRequest.getLanguage())
+                .isPresent();
+
+        if(isAnySameWord){
             throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
         }
+
+        wordToUpdate.setText(wordPutRequest.getText());
+        wordToUpdate.setLanguage(wordPutRequest.getLanguage());
 
         return new SuccessDataResult<>(modelMapper.map(wordRepository.save(wordToUpdate), WordDto.class), ResultMessages.SUCCESS_UPDATE);
     }

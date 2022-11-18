@@ -1,6 +1,7 @@
 package com.wordrace.service.impl;
 
 import com.wordrace.constant.ResultMessages;
+import com.wordrace.constant.RoomMessages;
 import com.wordrace.dto.GameDto;
 import com.wordrace.dto.RoomDto;
 import com.wordrace.dto.UserDto;
@@ -12,10 +13,7 @@ import com.wordrace.model.Room;
 import com.wordrace.repository.RoomRepository;
 import com.wordrace.request.room.RoomPostRequest;
 import com.wordrace.request.room.RoomPutRequest;
-import com.wordrace.result.DataResult;
-import com.wordrace.result.Result;
-import com.wordrace.result.SuccessDataResult;
-import com.wordrace.result.SuccessResult;
+import com.wordrace.result.*;
 import com.wordrace.service.RoomService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -53,7 +51,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public DataResult<GameDto> getGameByRoomId(Long roomId) {
         final Game game = Optional.ofNullable(findRoomById(roomId).getGame())
-                .orElseThrow(() -> new RuntimeException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
         final GameDto gameDto = modelMapper.map(game, GameDto.class);
         return new SuccessDataResult<>(gameDto, ResultMessages.EMPTY);
     }
@@ -99,8 +97,17 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public DataResult<RoomDto> updateRoomById(Long id, RoomPutRequest roomPutRequest) {
         final Room roomToUpdate = findRoomById(id);
+
+        boolean isUserInRoom = roomToUpdate.getUsers()
+                        .stream()
+                        .anyMatch(user -> user.getId().equals(roomPutRequest.getWinnerId()));
+
+        if(!isUserInRoom)
+            return new ErrorDataResult<>(null, RoomMessages.ROOM_USER_NOT_JOINED);
+
         roomToUpdate.setWinnerId(roomPutRequest.getWinnerId());
         final RoomDto roomDto = modelMapper.map(roomRepository.save(roomToUpdate), RoomDto.class);
+
         return new SuccessDataResult<>(roomDto, ResultMessages.SUCCESS_UPDATE);
     }
 

@@ -1,18 +1,20 @@
 package com.wordrace.service.impl;
 
 import com.wordrace.constant.ResultMessages;
+import com.wordrace.constant.RoomMessages;
 import com.wordrace.dto.GameDto;
 import com.wordrace.dto.RoomDto;
 import com.wordrace.dto.UserDto;
 import com.wordrace.dto.WordDto;
+import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.*;
 import com.wordrace.repository.GameRepository;
 import com.wordrace.repository.RoomRepository;
+import com.wordrace.repository.WordRepository;
 import com.wordrace.request.game.GamePostRequest;
 import com.wordrace.request.game.GamePostWordRequest;
 import com.wordrace.request.game.GamePutRequest;
-import com.wordrace.request.word.WordPostRequest;
 import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 import com.wordrace.result.SuccessDataResult;
@@ -21,19 +23,21 @@ import com.wordrace.service.GameService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class GameServiceImpl implements GameService {
 
     private final GameRepository gameRepository;
     private final RoomRepository roomRepository;
+    private final WordRepository wordRepository;
     private final ModelMapper modelMapper;
 
-    public GameServiceImpl(GameRepository gameRepository, RoomRepository roomRepository, ModelMapper modelMapper) {
+    public GameServiceImpl(GameRepository gameRepository, RoomRepository roomRepository, WordRepository wordRepository, ModelMapper modelMapper) {
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
+        this.wordRepository = wordRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -86,6 +90,10 @@ public class GameServiceImpl implements GameService {
     public DataResult<GameDto> createGame(GamePostRequest gamePostRequest) {
         final Room room = findRoomById(gamePostRequest.getRoomId());
         final Game game = new Game();
+
+        if(Optional.ofNullable(room.getGame()).isPresent()){
+            throw new EntityAlreadyExistException(RoomMessages.ROOM_HAS_ALREADY_GAME);
+        }
         game.setRoom(room);
         GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
         return new SuccessDataResult<>(gameDto, ResultMessages.SUCCESS_CREATE);
@@ -94,19 +102,21 @@ public class GameServiceImpl implements GameService {
     @Override
     public DataResult<GameDto> addWordToGameByGameId(Long gameId, GamePostWordRequest gamePostWordRequest) {
         final Game game = findById(gameId);
-        Word word = new Word();
-        gamePostWordRequest.getWords()
-                .forEach(wordPostRequest -> {
-                    game.getWords().forEach(gameWord->{
-                        if(!gameWord.getText().equals(wordPostRequest.getText())){
-                            word.setText(wordPostRequest.getText());
-                            word.setLanguage(wordPostRequest.getLanguage());
-                            game.getWords().add(word);
-                        }
-                    });
-                });
-        GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
-        return new SuccessDataResult<>(gameDto, ResultMessages.EMPTY);
+        gamePostWordRequest.getWordIds().forEach(wordId -> {
+
+            boolean anySameWordInGame = game.getWords().stream()
+                    .filter(gameWord -> gameWord.getId().equals(wordId))
+                    .toList().size() > 0;
+
+            if(!anySameWordInGame){
+                final Word word = findWordById(wordId);
+
+                word.getGames().add(game);
+                wordRepository.save(word);
+            }
+        });
+
+        return new SuccessDataResult<>(modelMapper.map(game, GameDto.class), ResultMessages.EMPTY);
     }
 
     @Override
@@ -131,6 +141,11 @@ public class GameServiceImpl implements GameService {
 
     private Room findRoomById(Long id){
         return roomRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+    }
+
+    private Word findWordById(Long id){
+        return wordRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 }
