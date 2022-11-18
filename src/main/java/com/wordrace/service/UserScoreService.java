@@ -1,5 +1,6 @@
 package com.wordrace.service;
 
+import com.wordrace.dto.UserScoreDto;
 import com.wordrace.model.UserScore;
 import com.wordrace.request.userscore.UserScorePostRequest;
 import com.wordrace.request.userscore.UserScorePutRequest;
@@ -11,18 +12,19 @@ import java.util.List;
 public interface UserScoreService {
 
     //GET OPERATIONS
-    DataResult<List<UserScore>> getAllUserScoresByGameId(Long gameId);
-    DataResult<UserScore> getUserScoreByUserIdAndGameId(Long userId, Long gameId);
+    DataResult<List<UserScoreDto>> getAllUserScoresByGameId(Long gameId);
+    DataResult<List<UserScoreDto>> getAllUserScoresByUserId(Long userId);
+    DataResult<UserScoreDto> getUserScoreByUserIdAndGameId(Long userId, Long gameId);
 
     //POST OPERATIONS
-    DataResult<UserScore> createUserScore(UserScorePostRequest userScorePostRequest);
+    DataResult<UserScoreDto> createUserScore(UserScorePostRequest userScorePostRequest);
 
     //PUT OPERATIONS
-    DataResult<UserScore> updateUserScore(UserScorePutRequest userScorePutRequest);
+    DataResult<UserScoreDto> updateUserScore(UserScorePutRequest userScorePutRequest);
 
     //DELETE OPERATIONS
     Result deleteUserScoreByUserId(Long userId);
     Result deleteUserScoreByGameId(Long gameId);
-    Result deleteUserScoreByUserAndGameId(Long userId, Long gameId);
+    Result deleteUserScoreByUserIdAndGameId(Long userId, Long gameId);
 
 }

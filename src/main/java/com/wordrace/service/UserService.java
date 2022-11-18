@@ -1,5 +1,6 @@
 package com.wordrace.service;
 
+import com.wordrace.dto.*;
 import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.User;
@@ -16,26 +17,26 @@ import java.util.Optional;
 public interface UserService {
 
     //GET OPERATIONS
-    DataResult<List<User>> getAllUsers();
+    DataResult<List<UserDto>> getAllUsers();
 
-    DataResult<User> getUserById(Long id);
+    DataResult<UserDto> getUserById(Long id);
 
-    DataResult<List<Game>> getAllGamesByUserId(Long userId);
+    DataResult<List<GameDto>> getAllGamesByUserId(Long userId);
 
-    DataResult<List<Room>> getAllRoomsByUserId(Long userId);
+    DataResult<List<RoomDto>> getAllRoomsByUserId(Long userId);
 
 
     //POST OPERATIONS
 
-    DataResult<User> createUser(UserPostRequest userPostRequest);
+    DataResult<UserDto> createUser(UserPostRequest userPostRequest);
 
-    DataResult<Room> joinRoom(UserPostJoinRoomRequest userPostJoinRoomRequest);
+    DataResult<RoomDto> joinRoom(UserPostJoinRoomRequest userPostJoinRoomRequest);
 
-    DataResult<Room> addScoreToUser(UserPostScoreRequest userPostScoreRequest);
+    DataResult<RoomDto> addScoreToUser(UserPostScoreRequest userPostScoreRequest);
 
     //PUT OPERATIONS
 
-    DataResult<User> updateUser(Long id, UserPutRequest userPutRequest);
+    DataResult<UserDto> updateUser(Long id, UserPutRequest userPutRequest);
 
     //DELETE OPERATIONS
 

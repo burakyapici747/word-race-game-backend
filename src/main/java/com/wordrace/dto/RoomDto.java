@@ -1,7 +1,9 @@
 package com.wordrace.dto;
 
+import lombok.Data;
 import java.util.List;
 
+@Data
 public class RoomDto {
 
     private Long id;
@@ -9,7 +11,6 @@ public class RoomDto {
     private UserDto winnerUser;
     private String roomName;
     private int capacity;
-    private GameDto game;
     private List<UserDto> users;
 
 }
