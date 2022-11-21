@@ -43,7 +43,7 @@ public class WordServiceImpl implements WordService {
 
     @Override
     public DataResult<WordDto> createWord(WordPostRequest wordPostRequest) {
-        boolean isAnySameWord = wordRepository.findByTextAndAndLanguage(wordPostRequest.getText(), wordPostRequest.getLanguage())
+        boolean isAnySameWord = wordRepository.findByTextAndLanguage(wordPostRequest.getText(), wordPostRequest.getLanguage())
                 .isPresent();
 
         if(isAnySameWord)
@@ -61,7 +61,7 @@ public class WordServiceImpl implements WordService {
         final Word wordToUpdate = findById(id);
 
         boolean isAnySameWord = wordRepository
-                .findByTextAndAndLanguage(wordPutRequest.getText(), wordPutRequest.getLanguage())
+                .findByTextAndLanguage(wordPutRequest.getText(), wordPutRequest.getLanguage())
                 .isPresent();
 
         if(isAnySameWord){
