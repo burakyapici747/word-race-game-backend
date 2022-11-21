@@ -11,6 +11,7 @@ public class RoomDto {
     private UserDto winnerUser;
     private String roomName;
     private int capacity;
+    private GameDto game;
     private List<UserDto> users;
 
 }
