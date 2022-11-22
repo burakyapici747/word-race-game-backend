@@ -8,20 +8,12 @@ import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface WordService {
-
-    //GET OPERATIONS
     DataResult<List<WordDto>> getAllWords();
-    DataResult<WordDto> getWordById(Long id);
-
-    //POST OPERATIONS
+    DataResult<WordDto> getWordById(UUID id);
     DataResult<WordDto> createWord(WordPostRequest wordPostRequest);
-
-    //PUT OPERATIONS
-    DataResult<WordDto> updateWordById(Long id, WordPutRequest wordPutRequest);
-
-    //DELETE OPERATIONS
-    Result deleteWordById(Long id);
-
+    DataResult<WordDto> updateWordById(UUID id, WordPutRequest wordPutRequest);
+    Result deleteWordById(UUID id);
 }

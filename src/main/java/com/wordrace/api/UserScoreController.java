@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/userscore")
@@ -22,17 +23,18 @@ public class UserScoreController {
     }
 
     @GetMapping("/game/{gameId}")
-    public ResponseEntity<DataResult<List<UserScoreDto>>> getAllUserScoresByGameId(@PathVariable("gameId") Long gameId){
+    public ResponseEntity<DataResult<List<UserScoreDto>>> getAllUserScoresByGameId(@PathVariable("gameId") UUID gameId){
         return ResponseEntity.ok(userScoreService.getAllUserScoresByGameId(gameId));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<DataResult<List<UserScoreDto>>> getAllUserScoresByUserId(@PathVariable("userId") Long userId){
+    public ResponseEntity<DataResult<List<UserScoreDto>>> getAllUserScoresByUserId(@PathVariable("userId") UUID userId){
         return ResponseEntity.ok(userScoreService.getAllUserScoresByUserId(userId));
     }
 
     @GetMapping("/{userId}/{gameId}")
-    public ResponseEntity<DataResult<UserScoreDto>> getUserScoreByUserIdAndGameId(@PathVariable("userId") Long userId, @PathVariable("gameId") Long gameId){
+    public ResponseEntity<DataResult<UserScoreDto>> getUserScoreByUserIdAndGameId(@PathVariable("userId") UUID userId,
+                                                                                  @PathVariable("gameId") UUID gameId){
         return ResponseEntity.ok(userScoreService.getUserScoreByUserIdAndGameId(userId, gameId));
     }
 
@@ -47,17 +49,17 @@ public class UserScoreController {
     }
 
     @DeleteMapping("/user/{userId}")
-    public ResponseEntity<Result> deleteUserScoreByUserId(@PathVariable("userId") Long userId){
+    public ResponseEntity<Result> deleteUserScoreByUserId(@PathVariable("userId") UUID userId){
         return ResponseEntity.ok(userScoreService.deleteUserScoreByUserId(userId));
     }
 
     @DeleteMapping("/game/{gameId}")
-    public ResponseEntity<Result> deleteUserScoreByGameId(@PathVariable("gameId") Long gameId){
+    public ResponseEntity<Result> deleteUserScoreByGameId(@PathVariable("gameId") UUID gameId){
         return ResponseEntity.ok(userScoreService.deleteUserScoreByGameId(gameId));
     }
 
     @DeleteMapping("/{userId}/{gameId}")
-    public ResponseEntity<Result> deleteUserScoreByUserIdAndGameId(@PathVariable("userId") Long userId, @PathVariable("gameId") Long gameId){
+    public ResponseEntity<Result> deleteUserScoreByUserIdAndGameId(@PathVariable("userId") UUID userId, @PathVariable("gameId") UUID gameId){
         return ResponseEntity.ok(userScoreService.deleteUserScoreByUserIdAndGameId(userId, gameId));
     }
 

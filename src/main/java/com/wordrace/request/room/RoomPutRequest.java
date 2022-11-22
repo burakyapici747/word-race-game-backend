@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class RoomPutRequest {
-    private Long winnerId;
+    private String winnerId;
 }

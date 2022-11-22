@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/game")
@@ -31,22 +32,22 @@ public class GameController {
     }
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<DataResult<GameDto>> getGameById(@PathVariable("id") Long id){
+    public ResponseEntity<DataResult<GameDto>> getGameById(@PathVariable("id") UUID id){
         return ResponseEntity.ok(gameService.getGameById(id));
     }
 
     @GetMapping(path = "/{id}/word")
-    public ResponseEntity<DataResult<List<WordDto>>> getAllWordsByGameId(@PathVariable("id") Long gameId){
+    public ResponseEntity<DataResult<List<WordDto>>> getAllWordsByGameId(@PathVariable("id") UUID gameId){
         return ResponseEntity.ok(gameService.getAllWordsByGameId(gameId));
     }
 
     @GetMapping(path = "/{id}/room")
-    public ResponseEntity<DataResult<RoomDto>> getRoomByGameId(@PathVariable("id") Long gameId){
+    public ResponseEntity<DataResult<RoomDto>> getRoomByGameId(@PathVariable("id") UUID gameId){
         return ResponseEntity.ok(gameService.getRoomByGameId(gameId));
     }
 
     @GetMapping(path = "/{id}/user")
-    public ResponseEntity<DataResult<List<UserDto>>> getAllUsersByGameId(@PathVariable("id") Long gameId) {
+    public ResponseEntity<DataResult<List<UserDto>>> getAllUsersByGameId(@PathVariable("id") UUID gameId) {
         return ResponseEntity.ok(gameService.getAllUsersByGameId(gameId));
     }
 
@@ -56,17 +57,17 @@ public class GameController {
     }
 
     @PostMapping(path = "/{id}/word")
-    public ResponseEntity<DataResult<GameDto>> addWordToGameByGameId(@PathVariable("id") Long gameId, @RequestBody GamePostWordRequest gamePostWordRequest){
+    public ResponseEntity<DataResult<GameDto>> addWordToGameByGameId(@PathVariable("id") UUID gameId, @RequestBody GamePostWordRequest gamePostWordRequest){
         return ResponseEntity.ok(gameService.addWordToGameByGameId(gameId, gamePostWordRequest));
     }
 
     @PutMapping(path = "/{id}")
-    public ResponseEntity<DataResult<GameDto>> updateTotalScoreByGameId(@PathVariable("id") Long gameId, @RequestBody GamePutRequest gamePutRequest){
+    public ResponseEntity<DataResult<GameDto>> updateTotalScoreByGameId(@PathVariable("id") UUID gameId, @RequestBody GamePutRequest gamePutRequest){
         return ResponseEntity.ok(gameService.updateTotalScoreByGameId(gameId, gamePutRequest));
     }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Result> deleteGameById(@PathVariable("id") Long id){
+    public ResponseEntity<Result> deleteGameById(@PathVariable("id") UUID id){
         return ResponseEntity.ok(gameService.deleteGameById(id));
     }
 }

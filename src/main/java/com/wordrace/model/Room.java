@@ -4,22 +4,18 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "room")
 public class Room extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private Long id;
-
     @Column(name = "creator_id")
-    private Long creatorId;
+    private UUID creatorId;
 
     @Column(name = "winner_id")
-    private Long winnerId;
+    private UUID winnerId;
 
     @Column(name = "room_name")
     private String roomName;

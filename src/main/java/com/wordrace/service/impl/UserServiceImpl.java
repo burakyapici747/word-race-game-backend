@@ -23,15 +23,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-//TODO: ISLEMLERIMDE EXCEPTION HANDLING YOK CUNKU NASIL YAPMAM GEREKTIGI HAKKINDA DUSUNUYORUM!!!
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
-
     private final ModelMapper modelMapper;
 
     public UserServiceImpl(UserRepository userRepository, RoomRepository roomRepository, ModelMapper modelMapper){
@@ -44,37 +42,37 @@ public class UserServiceImpl implements UserService {
     public DataResult<List<UserDto>> getAllUsers() {
         List<UserDto> userDtos = userRepository.findAll().stream()
                 .map(user -> modelMapper.map(user, UserDto.class))
-                .toList();
+                .collect(Collectors.toList());
 
         return new SuccessDataResult<>(userDtos, "");
     }
 
     @Override
-    public DataResult<UserDto> getUserById(Long id) {
+    public DataResult<UserDto> getUserById(UUID id) {
         final User user = findUserById(id);
 
         return new SuccessDataResult<>(modelMapper.map(user, UserDto.class), ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<GameDto>> getAllGamesByUserId(Long userId) {
+    public DataResult<List<GameDto>> getAllGamesByUserId(UUID userId) {
         final User user = findUserById(userId);
 
         List<GameDto> userGames = user.getRooms()
                 .stream()
                 .map(Room::getGame)
                 .map(game -> modelMapper.map(game, GameDto.class))
-                .toList();
+                .collect(Collectors.toList());
 
         return new SuccessDataResult<>(userGames, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<RoomDto>> getAllRoomsByUserId(Long userId) {
+    public DataResult<List<RoomDto>> getAllRoomsByUserId(UUID userId) {
         final User user = findUserById(userId);
         List<RoomDto> roomDtos = user.getRooms()
                 .stream().map(room -> modelMapper.map(room, RoomDto.class))
-                .toList();
+                .collect(Collectors.toList());
 
         return new SuccessDataResult<>(roomDtos, ResultMessages.EMPTY);
     }
@@ -89,15 +87,17 @@ public class UserServiceImpl implements UserService {
         }
 
         final User user = new User();
+
         user.setEmail(userPostRequest.getEmail());
         user.setPassword(userPostRequest.getPassword());
+
         return new SuccessDataResult<>(modelMapper.map(userRepository.save(user), UserDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
     public DataResult<RoomDto> joinRoom(UserPostJoinRoomRequest userPostJoinRoomRequest) {
-        final User user = findUserById(userPostJoinRoomRequest.getUserId());
-        final Room room = findRoomById(userPostJoinRoomRequest.getRoomId());
+        final User user = findUserById(UUID.fromString(userPostJoinRoomRequest.getUserId()));
+        final Room room = findRoomById(UUID.fromString(userPostJoinRoomRequest.getRoomId()));
 
         boolean isAlreadyUserInRoom = room.getUsers().stream()
                 .anyMatch(inRoomUser -> inRoomUser.getId().equals(user.getId()));
@@ -106,34 +106,33 @@ public class UserServiceImpl implements UserService {
             throw new EntityAlreadyExistException(RoomMessages.ROOM_USER_ALREADY_IN);
         }
 
-        //TODO: "ROOM_CAPACITY_IS_FULL" için belki exception olusturulabilir. Bunun için düşün...
         if(room.getUsers().size() + 1 > room.getCapacity()){
             return new ErrorDataResult<>(null, RoomMessages.ROOM_CAPACITY_IS_FULL);
         }
+
         user.getRooms().add(room);
+
         return new SuccessDataResult<>(modelMapper.map(userRepository.save(user), RoomDto.class), UserMessages.ROOM_JOIN_SUCCESSFULLY);
     }
 
     @Override
     public DataResult<RoomDto> addScoreToUser(UserPostScoreRequest userPostScoreRequest) {
-        final User user = findUserById(userPostScoreRequest.getUserId());
-
+        final User user = findUserById(UUID.fromString(userPostScoreRequest.getUserId()));
         final List<Room> filteredRooms = user.getRooms()
                 .stream()
                 .filter(room -> room.getGame().getId().equals(userPostScoreRequest.getGameId()))
-                .toList();
+                .collect(Collectors.toList());
 
         if(filteredRooms.size() == 0){
             throw new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA);
         }
 
         final Room room = filteredRooms.get(0);
+        final UserScore newScore = new UserScore();
 
-        UserScore newScore = new UserScore();
         newScore.setUser(user);
         newScore.setGame(room.getGame());
         newScore.setScore(userPostScoreRequest.getScore());
-
         user.getUserScore().add(newScore);
 
         userRepository.save(user);
@@ -142,7 +141,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public DataResult<UserDto> updateUser(Long id, UserPutRequest userPutRequest) {
+    public DataResult<UserDto> updateUser(UUID id, UserPutRequest userPutRequest) {
         final User userToUpdate = findUserById(id);
 
         if(userToUpdate.getNickName() == null || (userToUpdate.getNickName() != null && !userToUpdate.getNickName().equals(userPutRequest.getNickName()))){
@@ -160,7 +159,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result deleteUserById(Long id) {
+    public Result deleteUserById(UUID id) {
         final User user = findUserById(id);
 
         userRepository.delete(user);
@@ -168,12 +167,12 @@ public class UserServiceImpl implements UserService {
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private User findUserById(Long id){
+    private User findUserById(UUID id){
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private Room findRoomById(Long id){
+    private Room findRoomById(UUID id){
         return roomRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }

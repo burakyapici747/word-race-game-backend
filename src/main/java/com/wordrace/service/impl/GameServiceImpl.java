@@ -25,16 +25,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class GameServiceImpl implements GameService {
-
     private final GameRepository gameRepository;
     private final RoomRepository roomRepository;
     private final WordRepository wordRepository;
     private final ModelMapper modelMapper;
 
-    public GameServiceImpl(GameRepository gameRepository, RoomRepository roomRepository, WordRepository wordRepository, ModelMapper modelMapper) {
+    public GameServiceImpl(GameRepository gameRepository,
+                           RoomRepository roomRepository,
+                           WordRepository wordRepository,
+                           ModelMapper modelMapper) {
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
         this.wordRepository = wordRepository;
@@ -46,70 +50,78 @@ public class GameServiceImpl implements GameService {
         final List<GameDto> gameDtos = gameRepository.findAll()
                 .stream()
                 .map(game -> modelMapper.map(game, GameDto.class))
-                .toList();
+                .collect(Collectors.toList());
+
         return new SuccessDataResult<>(gameDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<GameDto> getGameById(Long id) {
+    public DataResult<GameDto> getGameById(UUID id) {
         final Game game = findById(id);
-        GameDto gameDto = modelMapper.map(game, GameDto.class);
+        final GameDto gameDto = modelMapper.map(game, GameDto.class);
+        
         return new SuccessDataResult<>(gameDto, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<WordDto>> getAllWordsByGameId(Long gameId) {
+    public DataResult<List<WordDto>> getAllWordsByGameId(UUID gameId) {
         final Game game = findById(gameId);
         final List<WordDto> wordDtos = game.getWords()
                 .stream()
                 .map(word-> modelMapper.map(word, WordDto.class))
-                .toList();
+                .collect(Collectors.toList());
+        
         return new SuccessDataResult<>(wordDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<RoomDto> getRoomByGameId(Long gameId) {
+    public DataResult<RoomDto> getRoomByGameId(UUID gameId) {
         final Game game = findById(gameId);
         final Room room = game.getRoom();
-        RoomDto roomDto = modelMapper.map(room, RoomDto.class);
+        final RoomDto roomDto = modelMapper.map(room, RoomDto.class);
+        
         return new SuccessDataResult<>(roomDto, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<UserDto>> getAllUsersByGameId(Long gameId) {
+    public DataResult<List<UserDto>> getAllUsersByGameId(UUID gameId) {
         final Game game = findById(gameId);
         final Room room = game.getRoom();
-        List<UserDto> userDtos = room.getUsers()
+        final List<UserDto> userDtos = room.getUsers()
                 .stream()
                 .map(user-> modelMapper.map(user, UserDto.class))
-                .toList();
+                .collect(Collectors.toList());
+        
         return new SuccessDataResult<>(userDtos, ResultMessages.EMPTY);
     }
 
     @Override
     public DataResult<GameDto> createGame(GamePostRequest gamePostRequest) {
-        final Room room = findRoomById(gamePostRequest.getRoomId());
+        final Room room = findRoomById(UUID.fromString(gamePostRequest.getRoomId()));
         final Game game = new Game();
 
         if(Optional.ofNullable(room.getGame()).isPresent()){
             throw new EntityAlreadyExistException(RoomMessages.ROOM_HAS_ALREADY_GAME);
         }
+        
         game.setRoom(room);
-        GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
+        
+        final GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
+        
         return new SuccessDataResult<>(gameDto, ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<GameDto> addWordToGameByGameId(Long gameId, GamePostWordRequest gamePostWordRequest) {
+    public DataResult<GameDto> addWordToGameByGameId(UUID gameId, GamePostWordRequest gamePostWordRequest) {
         final Game game = findById(gameId);
         gamePostWordRequest.getWordIds().forEach(wordId -> {
 
             boolean anySameWordInGame = game.getWords().stream()
                     .filter(gameWord -> gameWord.getId().equals(wordId))
-                    .toList().size() > 0;
+                    .collect(Collectors.toList()).size() > 0;
 
             if(!anySameWordInGame){
-                final Word word = findWordById(wordId);
+                final Word word = findWordById(UUID.fromString(wordId));
 
                 word.getGames().add(game);
                 wordRepository.save(word);
@@ -120,31 +132,36 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<GameDto> updateTotalScoreByGameId(Long gameId, GamePutRequest gamePutRequest) {
+    public DataResult<GameDto> updateTotalScoreByGameId(UUID gameId, GamePutRequest gamePutRequest) {
         final Game game = findById(gameId);
+        
         game.setTotalScore(gamePutRequest.getTotalScore());
-        GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
+        
+        final GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
+        
         return new SuccessDataResult<>(gameDto, ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
-    public Result deleteGameById(Long id) {
+    public Result deleteGameById(UUID id) {
         final Game game = findById(id);
+        
         gameRepository.delete(game);
+        
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private Game findById(Long id){
+    private Game findById(UUID id){
         return gameRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private Room findRoomById(Long id){
+    private Room findRoomById(UUID id){
         return roomRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private Word findWordById(Long id){
+    private Word findWordById(UUID id){
         return wordRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }

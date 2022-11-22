@@ -5,8 +5,9 @@ import com.wordrace.model.Word;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public interface WordRepository extends JpaRepository<Word, Long> {
+public interface WordRepository extends JpaRepository<Word, UUID> {
 
     Optional<Word> findByText(String text);
 

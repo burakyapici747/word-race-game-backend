@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class WordDto {
-    private Long id;
+    private String id;
     private String text;
     private Language language;
 }

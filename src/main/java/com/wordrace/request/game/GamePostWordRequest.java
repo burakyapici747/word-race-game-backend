@@ -7,5 +7,5 @@ import java.util.List;
 
 @Data
 public class GamePostWordRequest {
-    private List<Long> wordIds;
+    private List<String> wordIds;
 }

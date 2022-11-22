@@ -10,11 +10,6 @@ import java.util.List;
 @Table(name = "game")
 public class Game extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private Long id;
-
     @OneToOne
     @JoinColumn(name = "roomId", referencedColumnName = "id")
     private Room room;

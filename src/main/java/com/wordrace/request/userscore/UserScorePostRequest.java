@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class UserScorePostRequest {
-    private Long userId;
-    private Long gameId;
+    private String userId;
+    private String gameId;
     private int score;
 }

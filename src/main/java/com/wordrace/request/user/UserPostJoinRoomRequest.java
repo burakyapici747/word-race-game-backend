@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class UserPostJoinRoomRequest {
-    private Long roomId;
-    private Long userId;
+    private String roomId;
+    private String userId;
 }
