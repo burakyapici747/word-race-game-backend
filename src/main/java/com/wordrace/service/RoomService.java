@@ -12,11 +12,11 @@ import java.util.UUID;
 
 public interface RoomService {
     DataResult<List<RoomDto>> getAllRooms();
-    DataResult<RoomDto> getRoomById(UUID id);
-    DataResult<GameDto> getGameByRoomId(UUID roomId);
-    DataResult<List<WordDto>> getWordsByRoomId(UUID roomId);
-    DataResult<List<UserDto>> getUsersByRoomId(UUID roomId);
-    DataResult<RoomDto> createRoom(RoomPostRequest roomPostRequest);
-    DataResult<RoomDto> updateRoomById(UUID id, RoomPutRequest roomPutRequest);
-    Result deleteRoomById(UUID id);
+    DataResult<RoomDto> getRoomById(final UUID id);
+    DataResult<GameDto> getGameByRoomId(final UUID roomId);
+    DataResult<List<WordDto>> getWordsByRoomId(final UUID roomId);
+    DataResult<List<UserDto>> getUsersByRoomId(final UUID roomId);
+    DataResult<RoomDto> createRoom(final RoomPostRequest roomPostRequest);
+    DataResult<RoomDto> updateRoomById(final UUID id, final RoomPutRequest roomPutRequest);
+    Result deleteRoomById(final UUID id);
 }

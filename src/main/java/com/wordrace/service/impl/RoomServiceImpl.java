@@ -6,7 +6,6 @@ import com.wordrace.dto.GameDto;
 import com.wordrace.dto.RoomDto;
 import com.wordrace.dto.UserDto;
 import com.wordrace.dto.WordDto;
-import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Game;
 import com.wordrace.model.Room;
@@ -15,11 +14,11 @@ import com.wordrace.request.room.RoomPostRequest;
 import com.wordrace.request.room.RoomPutRequest;
 import com.wordrace.result.*;
 import com.wordrace.service.RoomService;
+import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -44,7 +43,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public DataResult<RoomDto> getRoomById(UUID id) {
+    public DataResult<RoomDto> getRoomById(final UUID id) {
         final Room room = findRoomById(id);
         final RoomDto roomDto = modelMapper.map(room, RoomDto.class);
 
@@ -52,18 +51,17 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public DataResult<GameDto> getGameByRoomId(UUID roomId) {
-        final Game game = Optional.ofNullable(findRoomById(roomId).getGame())
-                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+    public DataResult<GameDto> getGameByRoomId(final UUID roomId) {
+        final Game game = findRoomById(roomId).getGame();
+
         final GameDto gameDto = modelMapper.map(game, GameDto.class);
 
         return new SuccessDataResult<>(gameDto, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<WordDto>> getWordsByRoomId(UUID roomId) {
-        final Game game = Optional.ofNullable(findRoomById(roomId).getGame())
-                .orElseThrow(() -> new RuntimeException(ResultMessages.NOT_FOUND_DATA));
+    public DataResult<List<WordDto>> getWordsByRoomId(final UUID roomId) {
+        final Game game = findRoomById(roomId).getGame();
         final List<WordDto> wordDtos = game.getWords()
                 .stream()
                 .map(word-> modelMapper.map(word, WordDto.class))
@@ -73,7 +71,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public DataResult<List<UserDto>> getUsersByRoomId(UUID roomId) {
+    public DataResult<List<UserDto>> getUsersByRoomId(final UUID roomId) {
         final Room room = findRoomById(roomId);
         final List<UserDto> userDtos = room.getUsers()
                 .stream().map(user -> modelMapper.map(user, UserDto.class))
@@ -83,13 +81,8 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public DataResult<RoomDto> createRoom(RoomPostRequest roomPostRequest) {
-        boolean isRoomNameAlreadyExist = roomRepository.findByRoomName(roomPostRequest.getRoomName())
-                .isPresent();
-
-        if(isRoomNameAlreadyExist){
-            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
-        }
+    public DataResult<RoomDto> createRoom(final RoomPostRequest roomPostRequest) {
+        GlobalHelper.checkIfAlreadyExist(roomRepository.findByRoomName(roomPostRequest.getRoomName()));
 
         final Room room = new Room();
 
@@ -103,12 +96,12 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public DataResult<RoomDto> updateRoomById(UUID id, RoomPutRequest roomPutRequest) {
+    public DataResult<RoomDto> updateRoomById(final UUID id, final RoomPutRequest roomPutRequest) {
         final Room roomToUpdate = findRoomById(id);
 
         boolean isUserInRoom = roomToUpdate.getUsers()
                         .stream()
-                        .anyMatch(user -> user.getId().equals(roomPutRequest.getWinnerId()));
+                        .anyMatch(user -> user.getId().equals(UUID.fromString(roomPutRequest.getWinnerId())));
 
         if(!isUserInRoom)
             return new ErrorDataResult<>(null, RoomMessages.ROOM_USER_NOT_JOINED);
@@ -121,7 +114,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public Result deleteRoomById(UUID id) {
+    public Result deleteRoomById(final UUID id) {
         final Room room = findRoomById(id);
 
         roomRepository.delete(room);
@@ -129,7 +122,7 @@ public class RoomServiceImpl implements RoomService {
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private Room findRoomById(UUID id){
+    private Room findRoomById(final UUID id){
         return roomRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
