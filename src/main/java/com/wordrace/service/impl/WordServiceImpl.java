@@ -2,7 +2,6 @@ package com.wordrace.service.impl;
 
 import com.wordrace.constant.ResultMessages;
 import com.wordrace.dto.*;
-import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Word;
 import com.wordrace.repository.WordRepository;
@@ -10,11 +9,11 @@ import com.wordrace.request.word.WordPostRequest;
 import com.wordrace.request.word.WordPutRequest;
 import com.wordrace.result.*;
 import com.wordrace.service.WordService;
+import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -23,7 +22,7 @@ public class WordServiceImpl implements WordService {
     private final WordRepository wordRepository;
     private final ModelMapper modelMapper;
 
-    public WordServiceImpl(WordRepository wordRepository, ModelMapper modelMapper) {
+    public WordServiceImpl(final WordRepository wordRepository, final ModelMapper modelMapper) {
         this.wordRepository = wordRepository;
         this.modelMapper = modelMapper;
     }
@@ -38,19 +37,15 @@ public class WordServiceImpl implements WordService {
     }
 
     @Override
-    public DataResult<WordDto> getWordById(UUID id) {
+    public DataResult<WordDto> getWordById(final UUID id) {
         final Word word = findById(id);
 
         return new SuccessDataResult<>(modelMapper.map(word, WordDto.class), ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<WordDto> createWord(WordPostRequest wordPostRequest) {
-        boolean isAnySameWord = wordRepository.findByTextAndLanguage(wordPostRequest.getText(), wordPostRequest.getLanguage())
-                .isPresent();
-
-        if(isAnySameWord)
-            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
+    public DataResult<WordDto> createWord(final WordPostRequest wordPostRequest) {
+        GlobalHelper.checkIfAlreadyExist(wordRepository.findByTextAndLanguage(wordPostRequest.getText(), wordPostRequest.getLanguage()));
 
         final Word word = new Word();
 
@@ -61,16 +56,10 @@ public class WordServiceImpl implements WordService {
     }
 
     @Override
-    public DataResult<WordDto> updateWordById(UUID id, WordPutRequest wordPutRequest) {
+    public DataResult<WordDto> updateWordById(final UUID id, final WordPutRequest wordPutRequest) {
         final Word wordToUpdate = findById(id);
 
-        boolean isAnySameWord = wordRepository
-                .findByTextAndLanguage(wordPutRequest.getText(), wordPutRequest.getLanguage())
-                .isPresent();
-
-        if(isAnySameWord){
-            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
-        }
+        GlobalHelper.checkIfAlreadyExist(wordRepository.findByTextAndLanguage(wordPutRequest.getText(), wordPutRequest.getLanguage()));
 
         wordToUpdate.setText(wordPutRequest.getText());
         wordToUpdate.setLanguage(wordPutRequest.getLanguage());
@@ -79,7 +68,7 @@ public class WordServiceImpl implements WordService {
     }
 
     @Override
-    public Result deleteWordById(UUID id) {
+    public Result deleteWordById(final UUID id) {
         final Word word = findById(id);
 
         wordRepository.delete(word);
