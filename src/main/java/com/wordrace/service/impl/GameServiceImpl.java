@@ -48,10 +48,8 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public DataResult<List<GameDto>> getAllGames() {
-        final List<GameDto> gameDtos = gameRepository.findAll()
-                .stream()
-                .map(game -> modelMapper.map(game, GameDto.class))
-                .collect(Collectors.toList());
+        final List<GameDto> gameDtos = GlobalHelper.listDtoConverter(modelMapper,
+                gameRepository.findAll(), GameDto.class);
 
         return new SuccessDataResult<>(gameDtos, ResultMessages.EMPTY);
     }
@@ -67,11 +65,8 @@ public class GameServiceImpl implements GameService {
     @Override
     public DataResult<List<WordDto>> getAllWordsByGameId(final UUID gameId) {
         final Game game = findById(gameId);
-        final List<WordDto> wordDtos = game.getWords()
-                .stream()
-                .map(word-> modelMapper.map(word, WordDto.class))
-                .collect(Collectors.toList());
-        
+        final List<WordDto> wordDtos = GlobalHelper.listDtoConverter(modelMapper, game.getWords(), WordDto.class);
+
         return new SuccessDataResult<>(wordDtos, ResultMessages.EMPTY);
     }
 
@@ -88,11 +83,8 @@ public class GameServiceImpl implements GameService {
     public DataResult<List<UserDto>> getAllUsersByGameId(final UUID gameId) {
         final Game game = findById(gameId);
         final Room room = game.getRoom();
-        final List<UserDto> userDtos = room.getUsers()
-                .stream()
-                .map(user-> modelMapper.map(user, UserDto.class))
-                .collect(Collectors.toList());
-        
+        final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper, room.getUsers(), UserDto.class);
+
         return new SuccessDataResult<>(userDtos, ResultMessages.EMPTY);
     }
 

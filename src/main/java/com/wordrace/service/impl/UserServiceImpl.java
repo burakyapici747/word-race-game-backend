@@ -40,10 +40,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResult<List<UserDto>> getAllUsers() {
-        final List<UserDto> userDtos = userRepository.findAll()
-                .stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
-                .collect(Collectors.toList());
+        final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper,
+                userRepository.findAll(), UserDto.class);
 
         return new SuccessDataResult<>(userDtos, "");
     }
@@ -58,11 +56,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public DataResult<List<GameDto>> getAllGamesByUserId(final UUID userId) {
         final User user = findUserById(userId);
-        final List<GameDto> userGames = user.getRooms()
-                .stream()
-                .map(Room::getGame)
-                .map(game -> modelMapper.map(game, GameDto.class))
-                .collect(Collectors.toList());
+        final List<GameDto> userGames = GlobalHelper.listDtoConverter(modelMapper, user.getRooms(), GameDto.class);
 
         return new SuccessDataResult<>(userGames, ResultMessages.EMPTY);
     }
@@ -70,10 +64,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public DataResult<List<RoomDto>> getAllRoomsByUserId(final UUID userId) {
         final User user = findUserById(userId);
-        final List<RoomDto> roomDtos = user.getRooms()
-                .stream()
-                .map(room -> modelMapper.map(room, RoomDto.class))
-                .collect(Collectors.toList());
+        final List<RoomDto> roomDtos = GlobalHelper.listDtoConverter(modelMapper, user.getRooms(), RoomDto.class);
 
         return new SuccessDataResult<>(roomDtos, ResultMessages.EMPTY);
     }

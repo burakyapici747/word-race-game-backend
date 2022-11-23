@@ -16,6 +16,7 @@ import com.wordrace.result.Result;
 import com.wordrace.result.SuccessDataResult;
 import com.wordrace.result.SuccessResult;
 import com.wordrace.service.UserScoreService;
+import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -44,18 +45,16 @@ public class UserScoreServiceImpl implements UserScoreService {
 
     @Override
     public DataResult<List<UserScoreDto>> getAllUserScoresByGameId(final UUID gameId) {
-        List<UserScoreDto> userScoreDtos = findUserScoreByGameId(gameId)
-                .stream().map(userScore -> modelMapper.map(userScore, UserScoreDto.class))
-                .collect(Collectors.toList());
+        List<UserScoreDto> userScoreDtos = GlobalHelper.listDtoConverter(modelMapper,
+                findUserScoreByGameId(gameId), UserScoreDto.class);
 
         return new SuccessDataResult<>(userScoreDtos, ResultMessages.EMPTY);
     }
 
     @Override
     public DataResult<List<UserScoreDto>> getAllUserScoresByUserId(final UUID userId) {
-       final  List<UserScoreDto> userScoreDtos = findUserScoreByUserId(userId)
-                .stream().map(userScore -> modelMapper.map(userScore, UserScoreDto.class))
-                .collect(Collectors.toList());
+       final  List<UserScoreDto> userScoreDtos = GlobalHelper.listDtoConverter(modelMapper,
+               findUserScoreByUserId(userId), UserScoreDto.class);
 
         return new SuccessDataResult<>(userScoreDtos, ResultMessages.EMPTY);
     }

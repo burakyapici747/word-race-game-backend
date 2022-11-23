@@ -29,9 +29,8 @@ public class WordServiceImpl implements WordService {
 
     @Override
     public DataResult<List<WordDto>> getAllWords() {
-        final List<WordDto> wordDtos = wordRepository.findAll()
-                .stream().map(word -> modelMapper.map(word, WordDto.class))
-                .collect(Collectors.toList());
+        final List<WordDto> wordDtos = GlobalHelper.listDtoConverter(modelMapper,
+                wordRepository.findAll(), WordDto.class);
 
         return new SuccessDataResult<>(wordDtos, ResultMessages.EMPTY);
     }

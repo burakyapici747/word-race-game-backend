@@ -17,10 +17,8 @@ import com.wordrace.service.RoomService;
 import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class RoomServiceImpl implements RoomService {
@@ -34,10 +32,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public DataResult<List<RoomDto>> getAllRooms() {
-        final List<RoomDto> roomDtos = roomRepository.findAll()
-                .stream()
-                .map(room-> modelMapper.map(room, RoomDto.class))
-                .collect(Collectors.toList());
+        final List<RoomDto> roomDtos = GlobalHelper.listDtoConverter(modelMapper,
+                roomRepository.findAll(), RoomDto.class);
 
         return new SuccessDataResult<>(roomDtos, ResultMessages.EMPTY);
     }
@@ -53,7 +49,6 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public DataResult<GameDto> getGameByRoomId(final UUID roomId) {
         final Game game = findRoomById(roomId).getGame();
-
         final GameDto gameDto = modelMapper.map(game, GameDto.class);
 
         return new SuccessDataResult<>(gameDto, ResultMessages.EMPTY);
@@ -62,10 +57,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public DataResult<List<WordDto>> getWordsByRoomId(final UUID roomId) {
         final Game game = findRoomById(roomId).getGame();
-        final List<WordDto> wordDtos = game.getWords()
-                .stream()
-                .map(word-> modelMapper.map(word, WordDto.class))
-                .collect(Collectors.toList());
+        final List<WordDto> wordDtos = GlobalHelper.listDtoConverter(modelMapper, game.getWords(), WordDto.class);
 
         return new SuccessDataResult<>(wordDtos, ResultMessages.EMPTY);
     }
@@ -73,9 +65,7 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public DataResult<List<UserDto>> getUsersByRoomId(final UUID roomId) {
         final Room room = findRoomById(roomId);
-        final List<UserDto> userDtos = room.getUsers()
-                .stream().map(user -> modelMapper.map(user, UserDto.class))
-                .collect(Collectors.toList());
+        final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper, room.getUsers(), UserDto.class);
 
         return new SuccessDataResult<>(userDtos, ResultMessages.EMPTY);
     }
