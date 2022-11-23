@@ -16,12 +16,12 @@ import java.util.UUID;
 
 public interface GameService {
     DataResult<List<GameDto>> getAllGames();
-    DataResult<GameDto> getGameById(UUID id);
-    DataResult<List<WordDto>> getAllWordsByGameId(UUID gameId);
-    DataResult<RoomDto> getRoomByGameId(UUID gameId);
-    DataResult<List<UserDto>> getAllUsersByGameId(UUID gameId);
-    DataResult<GameDto> createGame(GamePostRequest gamePostRequest);
-    DataResult<GameDto> addWordToGameByGameId(UUID gameId, GamePostWordRequest gamePostWordRequest);
-    DataResult<GameDto> updateTotalScoreByGameId(UUID gameId, GamePutRequest gamePutRequest);
-    Result deleteGameById(UUID id);
+    DataResult<GameDto> getGameById(final UUID id);
+    DataResult<List<WordDto>> getAllWordsByGameId(final UUID gameId);
+    DataResult<RoomDto> getRoomByGameId(final UUID gameId);
+    DataResult<List<UserDto>> getAllUsersByGameId(final UUID gameId);
+    DataResult<GameDto> createGame(final GamePostRequest gamePostRequest);
+    DataResult<GameDto> addWordToGameByGameId(final UUID gameId, final GamePostWordRequest gamePostWordRequest);
+    DataResult<GameDto> updateTotalScoreByGameId(final UUID gameId, final GamePutRequest gamePutRequest);
+    Result deleteGameById(final UUID id);
 }

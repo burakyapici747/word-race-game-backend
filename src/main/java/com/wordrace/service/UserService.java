@@ -17,12 +17,12 @@ import java.util.UUID;
 
 public interface UserService {
     DataResult<List<UserDto>> getAllUsers();
-    DataResult<UserDto> getUserById(UUID id);
-    DataResult<List<GameDto>> getAllGamesByUserId(UUID userId);
-    DataResult<List<RoomDto>> getAllRoomsByUserId(UUID userId);
-    DataResult<UserDto> createUser(UserPostRequest userPostRequest);
-    DataResult<RoomDto> joinRoom(UserPostJoinRoomRequest userPostJoinRoomRequest);
-    DataResult<RoomDto> addScoreToUser(UserPostScoreRequest userPostScoreRequest);
-    DataResult<UserDto> updateUser(UUID id, UserPutRequest userPutRequest);
-    Result deleteUserById(UUID id);
+    DataResult<UserDto> getUserById(final UUID id);
+    DataResult<List<GameDto>> getAllGamesByUserId(final UUID userId);
+    DataResult<List<RoomDto>> getAllRoomsByUserId(final UUID userId);
+    DataResult<UserDto> createUser(final UserPostRequest userPostRequest);
+    DataResult<RoomDto> joinRoom(final UserPostJoinRoomRequest userPostJoinRoomRequest);
+    DataResult<RoomDto> addScoreToUser(final UserPostScoreRequest userPostScoreRequest);
+    DataResult<UserDto> updateUser(final UUID id, final UserPutRequest userPutRequest);
+    Result deleteUserById(final UUID id);
 }
