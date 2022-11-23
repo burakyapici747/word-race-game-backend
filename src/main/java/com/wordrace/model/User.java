@@ -11,11 +11,6 @@ import java.util.List;
 @Table(name = "user")
 public class User extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private Long id;
-
     @Column(name = "email")
     private String email;
 

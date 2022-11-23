@@ -9,8 +9,7 @@ import java.util.List;
 
 @Data
 public class GameDto {
-
-    private Long id;
+    private String id;
     private RoomDto room;
     private List<UserScoreDto> userScores;
     private List<WordDto> words;

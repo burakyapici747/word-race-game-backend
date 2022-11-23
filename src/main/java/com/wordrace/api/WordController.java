@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/word")
@@ -26,7 +27,7 @@ public class WordController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DataResult<WordDto>> getWordById(@PathVariable("id") Long id){
+    public ResponseEntity<DataResult<WordDto>> getWordById(@PathVariable("id") UUID id){
         return ResponseEntity.ok(wordService.getWordById(id));
     }
 
@@ -36,12 +37,12 @@ public class WordController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DataResult<WordDto>> updateWordById(@PathVariable("id") Long id, @RequestBody WordPutRequest wordPutRequest){
+    public ResponseEntity<DataResult<WordDto>> updateWordById(@PathVariable("id") UUID id, @RequestBody WordPutRequest wordPutRequest){
         return ResponseEntity.ok(wordService.updateWordById(id, wordPutRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Result> deleteWordById(@PathVariable Long id){
+    public ResponseEntity<Result> deleteWordById(@PathVariable UUID id){
         return ResponseEntity.ok(wordService.deleteWordById(id));
     }
 

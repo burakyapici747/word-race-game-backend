@@ -20,21 +20,26 @@ import com.wordrace.result.Result;
 import com.wordrace.result.SuccessDataResult;
 import com.wordrace.result.SuccessResult;
 import com.wordrace.service.GameService;
+import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class GameServiceImpl implements GameService {
-
     private final GameRepository gameRepository;
     private final RoomRepository roomRepository;
     private final WordRepository wordRepository;
     private final ModelMapper modelMapper;
 
-    public GameServiceImpl(GameRepository gameRepository, RoomRepository roomRepository, WordRepository wordRepository, ModelMapper modelMapper) {
+    public GameServiceImpl(GameRepository gameRepository,
+                           RoomRepository roomRepository,
+                           WordRepository wordRepository,
+                           ModelMapper modelMapper) {
         this.gameRepository = gameRepository;
         this.roomRepository = roomRepository;
         this.wordRepository = wordRepository;
@@ -43,73 +48,67 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public DataResult<List<GameDto>> getAllGames() {
-        final List<GameDto> gameDtos = gameRepository.findAll()
-                .stream()
-                .map(game -> modelMapper.map(game, GameDto.class))
-                .toList();
+        final List<GameDto> gameDtos = GlobalHelper.listDtoConverter(modelMapper,
+                gameRepository.findAll(), GameDto.class);
+
         return new SuccessDataResult<>(gameDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<GameDto> getGameById(Long id) {
+    public DataResult<GameDto> getGameById(final UUID id) {
         final Game game = findById(id);
-        GameDto gameDto = modelMapper.map(game, GameDto.class);
+        final GameDto gameDto = modelMapper.map(game, GameDto.class);
+        
         return new SuccessDataResult<>(gameDto, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<WordDto>> getAllWordsByGameId(Long gameId) {
+    public DataResult<List<WordDto>> getAllWordsByGameId(final UUID gameId) {
         final Game game = findById(gameId);
-        final List<WordDto> wordDtos = game.getWords()
-                .stream()
-                .map(word-> modelMapper.map(word, WordDto.class))
-                .toList();
+        final List<WordDto> wordDtos = GlobalHelper.listDtoConverter(modelMapper, game.getWords(), WordDto.class);
+
         return new SuccessDataResult<>(wordDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<RoomDto> getRoomByGameId(Long gameId) {
+    public DataResult<RoomDto> getRoomByGameId(final UUID gameId) {
         final Game game = findById(gameId);
         final Room room = game.getRoom();
-        RoomDto roomDto = modelMapper.map(room, RoomDto.class);
+        final RoomDto roomDto = modelMapper.map(room, RoomDto.class);
+        
         return new SuccessDataResult<>(roomDto, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<UserDto>> getAllUsersByGameId(Long gameId) {
+    public DataResult<List<UserDto>> getAllUsersByGameId(final UUID gameId) {
         final Game game = findById(gameId);
         final Room room = game.getRoom();
-        List<UserDto> userDtos = room.getUsers()
-                .stream()
-                .map(user-> modelMapper.map(user, UserDto.class))
-                .toList();
+        final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper, room.getUsers(), UserDto.class);
+
         return new SuccessDataResult<>(userDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<GameDto> createGame(GamePostRequest gamePostRequest) {
-        final Room room = findRoomById(gamePostRequest.getRoomId());
+    public DataResult<GameDto> createGame(final GamePostRequest gamePostRequest) {
+        final Room room = findRoomById(UUID.fromString(gamePostRequest.getRoomId()));
         final Game game = new Game();
 
-        if(Optional.ofNullable(room.getGame()).isPresent()){
-            throw new EntityAlreadyExistException(RoomMessages.ROOM_HAS_ALREADY_GAME);
-        }
+        GlobalHelper.checkIfAlreadyExist(room.getGame());
+        
         game.setRoom(room);
-        GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
+        
+        final GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
+        
         return new SuccessDataResult<>(gameDto, ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<GameDto> addWordToGameByGameId(Long gameId, GamePostWordRequest gamePostWordRequest) {
+    public DataResult<GameDto> addWordToGameByGameId(final UUID gameId, final GamePostWordRequest gamePostWordRequest) {
         final Game game = findById(gameId);
+
         gamePostWordRequest.getWordIds().forEach(wordId -> {
-
-            boolean anySameWordInGame = game.getWords().stream()
-                    .filter(gameWord -> gameWord.getId().equals(wordId))
-                    .toList().size() > 0;
-
-            if(!anySameWordInGame){
-                final Word word = findWordById(wordId);
+            if(checkAnySameWordInGame(game,UUID.fromString(wordId))){
+                final Word word = findWordById(UUID.fromString(wordId));
 
                 word.getGames().add(game);
                 wordRepository.save(word);
@@ -120,32 +119,41 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<GameDto> updateTotalScoreByGameId(Long gameId, GamePutRequest gamePutRequest) {
+    public DataResult<GameDto> updateTotalScoreByGameId(final UUID gameId, final GamePutRequest gamePutRequest) {
         final Game game = findById(gameId);
+        
         game.setTotalScore(gamePutRequest.getTotalScore());
-        GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
+        
+        final GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
+        
         return new SuccessDataResult<>(gameDto, ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
-    public Result deleteGameById(Long id) {
+    public Result deleteGameById(final UUID id) {
         final Game game = findById(id);
+        
         gameRepository.delete(game);
+        
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private Game findById(Long id){
+    private Game findById(final UUID id){
         return gameRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private Room findRoomById(Long id){
+    private Room findRoomById(final UUID id){
         return roomRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private Word findWordById(Long id){
+    private Word findWordById(final UUID id){
         return wordRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+    }
+
+    private boolean checkAnySameWordInGame(final Game game, final UUID wordId){
+        return game.getWords().stream().anyMatch(gameWord -> gameWord.getId().equals(wordId));
     }
 }

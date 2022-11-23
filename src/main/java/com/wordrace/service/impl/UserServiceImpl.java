@@ -6,6 +6,7 @@ import com.wordrace.constant.UserMessages;
 import com.wordrace.dto.*;
 import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
+import com.wordrace.exception.RoomCapacityIsFullException;
 import com.wordrace.model.Room;
 import com.wordrace.model.User;
 import com.wordrace.model.UserScore;
@@ -17,21 +18,18 @@ import com.wordrace.request.user.UserPostScoreRequest;
 import com.wordrace.request.user.UserPutRequest;
 import com.wordrace.result.*;
 import com.wordrace.service.UserService;
+import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-//TODO: ISLEMLERIMDE EXCEPTION HANDLING YOK CUNKU NASIL YAPMAM GEREKTIGI HAKKINDA DUSUNUYORUM!!!
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
-
     private final ModelMapper modelMapper;
 
     public UserServiceImpl(UserRepository userRepository, RoomRepository roomRepository, ModelMapper modelMapper){
@@ -42,125 +40,97 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResult<List<UserDto>> getAllUsers() {
-        List<UserDto> userDtos = userRepository.findAll().stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
-                .toList();
+        final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper,
+                userRepository.findAll(), UserDto.class);
 
         return new SuccessDataResult<>(userDtos, "");
     }
 
     @Override
-    public DataResult<UserDto> getUserById(Long id) {
+    public DataResult<UserDto> getUserById(final UUID id) {
         final User user = findUserById(id);
 
         return new SuccessDataResult<>(modelMapper.map(user, UserDto.class), ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<GameDto>> getAllGamesByUserId(Long userId) {
+    public DataResult<List<GameDto>> getAllGamesByUserId(final UUID userId) {
         final User user = findUserById(userId);
-
-        List<GameDto> userGames = user.getRooms()
-                .stream()
-                .map(Room::getGame)
-                .map(game -> modelMapper.map(game, GameDto.class))
-                .toList();
+        final List<GameDto> userGames = GlobalHelper.listDtoConverter(modelMapper, user.getRooms(), GameDto.class);
 
         return new SuccessDataResult<>(userGames, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<RoomDto>> getAllRoomsByUserId(Long userId) {
+    public DataResult<List<RoomDto>> getAllRoomsByUserId(final UUID userId) {
         final User user = findUserById(userId);
-        List<RoomDto> roomDtos = user.getRooms()
-                .stream().map(room -> modelMapper.map(room, RoomDto.class))
-                .toList();
+        final List<RoomDto> roomDtos = GlobalHelper.listDtoConverter(modelMapper, user.getRooms(), RoomDto.class);
 
         return new SuccessDataResult<>(roomDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<UserDto> createUser(UserPostRequest userPostRequest) {
-        boolean isEmailExists = userRepository.findUserByEmail(userPostRequest.getEmail())
-                .isPresent();
-
-        if(isEmailExists){
-            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
-        }
+    public DataResult<UserDto> createUser(final UserPostRequest userPostRequest) {
+        GlobalHelper.checkIfAlreadyExist(userRepository.findUserByEmail(userPostRequest.getEmail()));
 
         final User user = new User();
+
         user.setEmail(userPostRequest.getEmail());
         user.setPassword(userPostRequest.getPassword());
+
         return new SuccessDataResult<>(modelMapper.map(userRepository.save(user), UserDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<RoomDto> joinRoom(UserPostJoinRoomRequest userPostJoinRoomRequest) {
-        final User user = findUserById(userPostJoinRoomRequest.getUserId());
-        final Room room = findRoomById(userPostJoinRoomRequest.getRoomId());
+    public DataResult<RoomDto> joinRoom(final UserPostJoinRoomRequest userPostJoinRoomRequest) {
+        final User user = findUserById(UUID.fromString(userPostJoinRoomRequest.getUserId()));
+        final Room room = findRoomById(UUID.fromString(userPostJoinRoomRequest.getRoomId()));
 
-        boolean isAlreadyUserInRoom = room.getUsers().stream()
-                .anyMatch(inRoomUser -> inRoomUser.getId().equals(user.getId()));
-
-        if(isAlreadyUserInRoom){
-            throw new EntityAlreadyExistException(RoomMessages.ROOM_USER_ALREADY_IN);
-        }
-
-        //TODO: "ROOM_CAPACITY_IS_FULL" için belki exception olusturulabilir. Bunun için düşün...
-        if(room.getUsers().size() + 1 > room.getCapacity()){
-            return new ErrorDataResult<>(null, RoomMessages.ROOM_CAPACITY_IS_FULL);
-        }
+        isAlreadyUserInRoom(room.getUsers(), user);
+        checkRoomCapacity(room.getUsers().size(), room.getCapacity());
         user.getRooms().add(room);
+
         return new SuccessDataResult<>(modelMapper.map(userRepository.save(user), RoomDto.class), UserMessages.ROOM_JOIN_SUCCESSFULLY);
     }
 
     @Override
-    public DataResult<RoomDto> addScoreToUser(UserPostScoreRequest userPostScoreRequest) {
-        final User user = findUserById(userPostScoreRequest.getUserId());
-
-        final List<Room> filteredRooms = user.getRooms()
+    public DataResult<RoomDto> addScoreToUser(final UserPostScoreRequest userPostScoreRequest) {
+        final User user = findUserById(UUID.fromString(userPostScoreRequest.getUserId()));
+        final Optional<Room> optionalRoom = user.getRooms()
                 .stream()
-                .filter(room -> room.getGame().getId().equals(userPostScoreRequest.getGameId()))
-                .toList();
+                .filter(room -> room.getGame().getId().equals(UUID.fromString(userPostScoreRequest.getGameId())))
+                .findFirst();
 
-        if(filteredRooms.size() == 0){
-            throw new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA);
-        }
+        GlobalHelper.checkIfNullable(optionalRoom);
 
-        final Room room = filteredRooms.get(0);
+        final UserScore newScore = new UserScore();
 
-        UserScore newScore = new UserScore();
         newScore.setUser(user);
-        newScore.setGame(room.getGame());
+        newScore.setGame(optionalRoom.get().getGame());
         newScore.setScore(userPostScoreRequest.getScore());
-
         user.getUserScore().add(newScore);
 
         userRepository.save(user);
 
-        return new SuccessDataResult<>(modelMapper.map(room, RoomDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResult<>(modelMapper.map(optionalRoom.get(), RoomDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<UserDto> updateUser(Long id, UserPutRequest userPutRequest) {
+    public DataResult<UserDto> updateUser(final UUID id, final UserPutRequest userPutRequest) {
         final User userToUpdate = findUserById(id);
 
-        if(userToUpdate.getNickName() == null || (userToUpdate.getNickName() != null && !userToUpdate.getNickName().equals(userPutRequest.getNickName()))){
-
-            final Optional<User> hasSameNickNameUser = userRepository.findUserByNickName(userPutRequest.getNickName());
-
-            if(hasSameNickNameUser.isPresent() && !hasSameNickNameUser.get().getId().equals(id)){
-                throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
-            }
+        if(nickNameIsValid(userToUpdate, userPutRequest.getNickName())){
+            checkIfNickNameAlreadyExist(userToUpdate.getId(), userRepository.findUserByNickName(userPutRequest.getNickName()));
 
             userToUpdate.setNickName(userPutRequest.getNickName());
             userRepository.save(userToUpdate);
         }
+
         return new SuccessDataResult<>(modelMapper.map(userToUpdate, UserDto.class), ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
-    public Result deleteUserById(Long id) {
+    public Result deleteUserById(final UUID id) {
         final User user = findUserById(id);
 
         userRepository.delete(user);
@@ -168,13 +138,35 @@ public class UserServiceImpl implements UserService {
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private User findUserById(Long id){
+    private User findUserById(final UUID id){
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private Room findRoomById(Long id){
+    private Room findRoomById(final UUID id){
         return roomRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+    }
+
+    private void isAlreadyUserInRoom(final List<User> users, final User user){
+        if(users.stream().anyMatch(inRoomUser -> inRoomUser.getId().equals(user.getId()))){
+            throw new EntityAlreadyExistException(RoomMessages.ROOM_USER_ALREADY_IN);
+        }
+    }
+
+    private void checkRoomCapacity(final int usersCount, int roomCapacity){
+        if(usersCount + 1 > roomCapacity){
+            throw new RoomCapacityIsFullException(RoomMessages.ROOM_CAPACITY_IS_FULL);
+        }
+    }
+
+    private boolean nickNameIsValid(final User userToUpdate, final String userPutRequestNickName){
+        return userToUpdate.getNickName() != null && !userToUpdate.getNickName().equals(userPutRequestNickName);
+    }
+
+    private void checkIfNickNameAlreadyExist(final UUID userId, final Optional<User> resultFindUserByNickName){
+        if(resultFindUserByNickName.isPresent() && !resultFindUserByNickName.get().getId().equals(userId)){
+            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
+        }
     }
 }

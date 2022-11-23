@@ -1,7 +1,6 @@
 package com.wordrace.result;
 
 public abstract class Result {
-
     public boolean isSuccess;
     public String message;
 
@@ -9,6 +8,4 @@ public abstract class Result {
         this.isSuccess = isSuccess;
         this.message = message;
     }
-
-
 }

@@ -12,24 +12,16 @@ import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface GameService {
-
-    //Get Operations
     DataResult<List<GameDto>> getAllGames();
-    DataResult<GameDto> getGameById(Long id);
-    DataResult<List<WordDto>> getAllWordsByGameId(Long gameId);
-    DataResult<RoomDto> getRoomByGameId(Long gameId);
-    DataResult<List<UserDto>> getAllUsersByGameId(Long gameId);
-
-    //Post Operations
-    DataResult<GameDto> createGame(GamePostRequest gamePostRequest);
-    DataResult<GameDto> addWordToGameByGameId(Long gameId, GamePostWordRequest gamePostWordRequest);
-
-    //Put Operations
-    DataResult<GameDto> updateTotalScoreByGameId(Long gameId, GamePutRequest gamePutRequest);
-
-    //Delete Operations
-    Result deleteGameById(Long id);
-
+    DataResult<GameDto> getGameById(final UUID id);
+    DataResult<List<WordDto>> getAllWordsByGameId(final UUID gameId);
+    DataResult<RoomDto> getRoomByGameId(final UUID gameId);
+    DataResult<List<UserDto>> getAllUsersByGameId(final UUID gameId);
+    DataResult<GameDto> createGame(final GamePostRequest gamePostRequest);
+    DataResult<GameDto> addWordToGameByGameId(final UUID gameId, final GamePostWordRequest gamePostWordRequest);
+    DataResult<GameDto> updateTotalScoreByGameId(final UUID gameId, final GamePutRequest gamePutRequest);
+    Result deleteGameById(final UUID id);
 }

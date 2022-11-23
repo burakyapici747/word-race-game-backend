@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/room")
@@ -28,22 +29,22 @@ public class RoomController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DataResult<RoomDto>> getRoomById(@PathVariable("id") Long id){
+    public ResponseEntity<DataResult<RoomDto>> getRoomById(@PathVariable("id") UUID id){
         return ResponseEntity.ok(roomService.getRoomById(id));
     }
 
     @GetMapping("/{id}/game")
-    public ResponseEntity<DataResult<GameDto>> getGameByRoomId(@PathVariable("id") Long roomId){
+    public ResponseEntity<DataResult<GameDto>> getGameByRoomId(@PathVariable("id") UUID roomId){
         return ResponseEntity.ok(roomService.getGameByRoomId(roomId));
     }
 
     @GetMapping("/{id}/game/word")
-    public ResponseEntity<DataResult<List<WordDto>>> getWordsByRoomId(@PathVariable("id") Long roomId) {
+    public ResponseEntity<DataResult<List<WordDto>>> getWordsByRoomId(@PathVariable("id") UUID roomId) {
         return ResponseEntity.ok(roomService.getWordsByRoomId(roomId));
     }
 
     @GetMapping("/{id}/user")
-    public ResponseEntity<DataResult<List<UserDto>>> getUsersByRoomId(@PathVariable("id") Long roomId){
+    public ResponseEntity<DataResult<List<UserDto>>> getUsersByRoomId(@PathVariable("id") UUID roomId){
         return ResponseEntity.ok(roomService.getUsersByRoomId(roomId));
     }
 
@@ -53,12 +54,12 @@ public class RoomController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DataResult<RoomDto>> updateRoom(@PathVariable("id") Long id, @RequestBody RoomPutRequest roomPutRequest){
+    public ResponseEntity<DataResult<RoomDto>> updateRoom(@PathVariable("id") UUID id, @RequestBody RoomPutRequest roomPutRequest){
         return ResponseEntity.ok(roomService.updateRoomById(id, roomPutRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Result> deleteRoomById(Long id){
+    public ResponseEntity<Result> deleteRoomById(UUID id){
         return ResponseEntity.ok(roomService.deleteRoomById(id));
     }
 

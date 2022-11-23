@@ -10,11 +10,6 @@ import java.util.List;
 @Table(name = "word")
 public class Word extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
-    private Long id;
-
     @Column(name = "text")
     private String text;
 

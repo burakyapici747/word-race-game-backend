@@ -9,11 +9,6 @@ import javax.persistence.*;
 @Table(name = "user_score")
 public class UserScore extends BaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private Long id;
-
     @ManyToOne
     @JoinColumn(name = "game_id")
     private Game game;

@@ -13,33 +13,16 @@ import com.wordrace.result.Result;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface UserService {
-
-    //GET OPERATIONS
     DataResult<List<UserDto>> getAllUsers();
-
-    DataResult<UserDto> getUserById(Long id);
-
-    DataResult<List<GameDto>> getAllGamesByUserId(Long userId);
-
-    DataResult<List<RoomDto>> getAllRoomsByUserId(Long userId);
-
-
-    //POST OPERATIONS
-
-    DataResult<UserDto> createUser(UserPostRequest userPostRequest);
-
-    DataResult<RoomDto> joinRoom(UserPostJoinRoomRequest userPostJoinRoomRequest);
-
-    DataResult<RoomDto> addScoreToUser(UserPostScoreRequest userPostScoreRequest);
-
-    //PUT OPERATIONS
-
-    DataResult<UserDto> updateUser(Long id, UserPutRequest userPutRequest);
-
-    //DELETE OPERATIONS
-
-    Result deleteUserById(Long id);
-
+    DataResult<UserDto> getUserById(final UUID id);
+    DataResult<List<GameDto>> getAllGamesByUserId(final UUID userId);
+    DataResult<List<RoomDto>> getAllRoomsByUserId(final UUID userId);
+    DataResult<UserDto> createUser(final UserPostRequest userPostRequest);
+    DataResult<RoomDto> joinRoom(final UserPostJoinRoomRequest userPostJoinRoomRequest);
+    DataResult<RoomDto> addScoreToUser(final UserPostScoreRequest userPostScoreRequest);
+    DataResult<UserDto> updateUser(final UUID id, final UserPutRequest userPutRequest);
+    Result deleteUserById(final UUID id);
 }

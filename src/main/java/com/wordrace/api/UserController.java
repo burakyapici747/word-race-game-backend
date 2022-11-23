@@ -10,6 +10,7 @@ import com.wordrace.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/user")
@@ -27,17 +28,17 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DataResult<UserDto>> getUserById(@PathVariable("id") Long id){
+    public ResponseEntity<DataResult<UserDto>> getUserById(@PathVariable("id") UUID id){
         return ResponseEntity.ok(this.userService.getUserById(id));
     }
 
     @GetMapping("/{id}/game")
-    public ResponseEntity<DataResult<List<GameDto>>> getAllGamesByUserId(@PathVariable("id") Long userId){
+    public ResponseEntity<DataResult<List<GameDto>>> getAllGamesByUserId(@PathVariable("id") UUID userId){
         return ResponseEntity.ok(userService.getAllGamesByUserId(userId));
     }
 
     @GetMapping("/{id}/room")
-    public ResponseEntity<DataResult<List<RoomDto>>> getAllRoomsByUserId(@PathVariable("id") Long userId){
+    public ResponseEntity<DataResult<List<RoomDto>>> getAllRoomsByUserId(@PathVariable("id") UUID userId){
         return ResponseEntity.ok(userService.getAllRoomsByUserId(userId));
     }
 
@@ -57,12 +58,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DataResult<UserDto>> updateUser(@PathVariable("id") Long id, @RequestBody UserPutRequest userPutRequest){
+    public ResponseEntity<DataResult<UserDto>> updateUser(@PathVariable("id") UUID id, @RequestBody UserPutRequest userPutRequest){
         return ResponseEntity.ok(userService.updateUser(id, userPutRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Result> deleteUserById(@PathVariable("id") Long id){
+    public ResponseEntity<Result> deleteUserById(@PathVariable("id") UUID id){
         return ResponseEntity.ok(userService.deleteUserById(id));
     }
 }

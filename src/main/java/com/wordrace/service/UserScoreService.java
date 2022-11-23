@@ -8,23 +8,15 @@ import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface UserScoreService {
-
-    //GET OPERATIONS
-    DataResult<List<UserScoreDto>> getAllUserScoresByGameId(Long gameId);
-    DataResult<List<UserScoreDto>> getAllUserScoresByUserId(Long userId);
-    DataResult<UserScoreDto> getUserScoreByUserIdAndGameId(Long userId, Long gameId);
-
-    //POST OPERATIONS
-    DataResult<UserScoreDto> createUserScore(UserScorePostRequest userScorePostRequest);
-
-    //PUT OPERATIONS
-    DataResult<UserScoreDto> updateUserScore(UserScorePutRequest userScorePutRequest);
-
-    //DELETE OPERATIONS
-    Result deleteUserScoreByUserId(Long userId);
-    Result deleteUserScoreByGameId(Long gameId);
-    Result deleteUserScoreByUserIdAndGameId(Long userId, Long gameId);
-
+    DataResult<List<UserScoreDto>> getAllUserScoresByGameId(final UUID gameId);
+    DataResult<List<UserScoreDto>> getAllUserScoresByUserId(final UUID userId);
+    DataResult<UserScoreDto> getUserScoreByUserIdAndGameId(final UUID userId, final UUID gameId);
+    DataResult<UserScoreDto> createUserScore(final UserScorePostRequest userScorePostRequest);
+    DataResult<UserScoreDto> updateUserScore(final UserScorePutRequest userScorePutRequest);
+    Result deleteUserScoreByUserId(final UUID userId);
+    Result deleteUserScoreByGameId(final UUID gameId);
+    Result deleteUserScoreByUserIdAndGameId(final UUID userId, final UUID gameId);
 }

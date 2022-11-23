@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class GamePostRequest {
-    private Long roomId;
+    private String roomId;
 }
