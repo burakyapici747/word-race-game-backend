@@ -20,6 +20,7 @@ import com.wordrace.result.Result;
 import com.wordrace.result.SuccessDataResult;
 import com.wordrace.result.SuccessResult;
 import com.wordrace.service.GameService;
+import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -56,7 +57,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<GameDto> getGameById(UUID id) {
+    public DataResult<GameDto> getGameById(final UUID id) {
         final Game game = findById(id);
         final GameDto gameDto = modelMapper.map(game, GameDto.class);
         
@@ -64,7 +65,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<List<WordDto>> getAllWordsByGameId(UUID gameId) {
+    public DataResult<List<WordDto>> getAllWordsByGameId(final UUID gameId) {
         final Game game = findById(gameId);
         final List<WordDto> wordDtos = game.getWords()
                 .stream()
@@ -75,7 +76,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<RoomDto> getRoomByGameId(UUID gameId) {
+    public DataResult<RoomDto> getRoomByGameId(final UUID gameId) {
         final Game game = findById(gameId);
         final Room room = game.getRoom();
         final RoomDto roomDto = modelMapper.map(room, RoomDto.class);
@@ -84,7 +85,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<List<UserDto>> getAllUsersByGameId(UUID gameId) {
+    public DataResult<List<UserDto>> getAllUsersByGameId(final UUID gameId) {
         final Game game = findById(gameId);
         final Room room = game.getRoom();
         final List<UserDto> userDtos = room.getUsers()
@@ -96,13 +97,11 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<GameDto> createGame(GamePostRequest gamePostRequest) {
+    public DataResult<GameDto> createGame(final GamePostRequest gamePostRequest) {
         final Room room = findRoomById(UUID.fromString(gamePostRequest.getRoomId()));
         final Game game = new Game();
 
-        if(Optional.ofNullable(room.getGame()).isPresent()){
-            throw new EntityAlreadyExistException(RoomMessages.ROOM_HAS_ALREADY_GAME);
-        }
+        GlobalHelper.checkIfAlreadyExist(room.getGame());
         
         game.setRoom(room);
         
@@ -112,15 +111,11 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<GameDto> addWordToGameByGameId(UUID gameId, GamePostWordRequest gamePostWordRequest) {
+    public DataResult<GameDto> addWordToGameByGameId(final UUID gameId, final GamePostWordRequest gamePostWordRequest) {
         final Game game = findById(gameId);
+
         gamePostWordRequest.getWordIds().forEach(wordId -> {
-
-            boolean anySameWordInGame = game.getWords().stream()
-                    .filter(gameWord -> gameWord.getId().equals(wordId))
-                    .collect(Collectors.toList()).size() > 0;
-
-            if(!anySameWordInGame){
+            if(checkAnySameWordInGame(game,UUID.fromString(wordId))){
                 final Word word = findWordById(UUID.fromString(wordId));
 
                 word.getGames().add(game);
@@ -132,7 +127,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public DataResult<GameDto> updateTotalScoreByGameId(UUID gameId, GamePutRequest gamePutRequest) {
+    public DataResult<GameDto> updateTotalScoreByGameId(final UUID gameId, final GamePutRequest gamePutRequest) {
         final Game game = findById(gameId);
         
         game.setTotalScore(gamePutRequest.getTotalScore());
@@ -143,7 +138,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Result deleteGameById(UUID id) {
+    public Result deleteGameById(final UUID id) {
         final Game game = findById(id);
         
         gameRepository.delete(game);
@@ -151,18 +146,22 @@ public class GameServiceImpl implements GameService {
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private Game findById(UUID id){
+    private Game findById(final UUID id){
         return gameRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private Room findRoomById(UUID id){
+    private Room findRoomById(final UUID id){
         return roomRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private Word findWordById(UUID id){
+    private Word findWordById(final UUID id){
         return wordRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+    }
+
+    private boolean checkAnySameWordInGame(final Game game, final UUID wordId){
+        return game.getWords().stream().anyMatch(gameWord -> gameWord.getId().equals(wordId));
     }
 }
