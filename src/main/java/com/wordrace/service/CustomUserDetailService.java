@@ -2,10 +2,13 @@ package com.wordrace.service;
 
 import com.wordrace.model.User;
 import com.wordrace.repository.UserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
 
 @Component
 public class CustomUserDetailService implements UserDetailsService {
@@ -19,7 +22,7 @@ public class CustomUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         final User user = getUserByUsername(username);
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(),user.getPassword(),null);
+        return new org.springframework.security.core.userdetails.User(user.getEmail(),user.getPassword(),new ArrayList<SimpleGrantedAuthority>());
     }
 
     private User getUserByUsername(final String username){

@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResult<UserDto> createUser(final UserPostRequest userPostRequest) {
-        GlobalHelper.checkIfAlreadyExist(userRepository.findUserByEmail(userPostRequest.getEmail()));
+        GlobalHelper.checkIfAlreadyExist(userRepository.findUserByEmail(userPostRequest.getEmail()).orElse(null));
 
         final User user = new User();
 

@@ -6,6 +6,7 @@ import com.wordrace.service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -23,19 +24,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-    private final AuthenticationManager authenticationManager;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final CustomUserDetailService userDetailService;
+    private final AuthenticationConfiguration configuration;
 
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         final CustomAuthenticationFilter customAuthenticationFilter =
-                new CustomAuthenticationFilter(authenticationManager);
+                new CustomAuthenticationFilter(getAuthenticationManager(configuration));
         customAuthenticationFilter.setFilterProcessesUrl("/api/user/login");
 
         return http
                 .csrf().disable()
                 .authorizeRequests((auth)->{
                     auth.antMatchers("/api/user/login").permitAll();
+                    auth.antMatchers(HttpMethod.POST,"/api/user").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .formLogin().disable()
@@ -50,11 +51,6 @@ public class SecurityConfiguration {
     @Bean
     public AuthenticationManager getAuthenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
-    }
-
-    @Bean
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailService).passwordEncoder(passwordEncoder);
     }
 
     @Bean

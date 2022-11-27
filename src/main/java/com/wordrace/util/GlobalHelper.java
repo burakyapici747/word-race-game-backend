@@ -7,6 +7,7 @@ import lombok.experimental.UtilityClass;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,7 @@ public class GlobalHelper {
     }
 
     public void checkIfAlreadyExist(Object object){
-        if(Optional.ofNullable(object).isPresent()){
+        if(Objects.nonNull(object)){
             throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
         }
     }
