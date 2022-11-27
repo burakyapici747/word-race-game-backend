@@ -20,6 +20,7 @@ import com.wordrace.result.*;
 import com.wordrace.service.UserService;
 import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -30,12 +31,17 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
-    public UserServiceImpl(UserRepository userRepository, RoomRepository roomRepository, ModelMapper modelMapper){
+    public UserServiceImpl(UserRepository userRepository,
+                           RoomRepository roomRepository,
+                           ModelMapper modelMapper,
+                           PasswordEncoder passwordEncoder){
         this.userRepository = userRepository;
         this.roomRepository = roomRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -76,7 +82,7 @@ public class UserServiceImpl implements UserService {
         final User user = new User();
 
         user.setEmail(userPostRequest.getEmail());
-        user.setPassword(userPostRequest.getPassword());
+        user.setPassword(passwordEncoder.encode(userPostRequest.getPassword()));
 
         return new SuccessDataResult<>(modelMapper.map(userRepository.save(user), UserDto.class), ResultMessages.SUCCESS_CREATE);
     }

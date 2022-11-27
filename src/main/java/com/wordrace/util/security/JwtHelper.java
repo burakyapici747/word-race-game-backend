@@ -7,11 +7,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.wordrace.constant.SecurityConstant;
 import lombok.experimental.UtilityClass;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Date;
-import java.util.List;
 
 @UtilityClass
 public class JwtHelper {

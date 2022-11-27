@@ -1,6 +1,5 @@
 package com.wordrace.service;
 
-import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.User;
 import com.wordrace.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
