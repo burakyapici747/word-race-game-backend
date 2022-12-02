@@ -6,8 +6,6 @@ import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Game;
 import com.wordrace.model.User;
 import com.wordrace.model.UserScore;
-import com.wordrace.repository.GameRepository;
-import com.wordrace.repository.UserRepository;
 import com.wordrace.repository.UserScoreRepository;
 import com.wordrace.request.userscore.UserScorePostRequest;
 import com.wordrace.request.userscore.UserScorePutRequest;
@@ -22,24 +20,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class UserScoreServiceImpl implements UserScoreService {
 
+    private final GameServiceImpl gameService;
+    private final UserServiceImpl userService;
     private final UserScoreRepository userScoreRepository;
-    private final GameRepository gameRepository;
-    private final UserRepository userRepository;
-
     private final ModelMapper modelMapper;
 
-    public UserScoreServiceImpl(UserScoreRepository userScoreRepository,
-                                GameRepository gameRepository,
-                                UserRepository userRepository,
+    public UserScoreServiceImpl(GameServiceImpl gameService,
+                                UserServiceImpl userService,
+                                UserScoreRepository userScoreRepository,
                                 ModelMapper modelMapper) {
+        this.gameService = gameService;
+        this.userService = userService;
         this.userScoreRepository = userScoreRepository;
-        this.gameRepository = gameRepository;
-        this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -69,8 +65,8 @@ public class UserScoreServiceImpl implements UserScoreService {
     @Override
     public DataResult<UserScoreDto> createUserScore(final UserScorePostRequest userScorePostRequest) {
         final UserScore userScore = new UserScore();
-        final User user = findUserById(UUID.fromString(userScorePostRequest.getUserId()));
-        final Game game = findGameById(UUID.fromString(userScorePostRequest.getGameId()));
+        final User user = userService.findUserById(UUID.fromString(userScorePostRequest.getUserId()));
+        final Game game = gameService.findGameById(UUID.fromString(userScorePostRequest.getGameId()));
 
         userScore.setUser(user);
         userScore.setGame(game);
@@ -116,33 +112,23 @@ public class UserScoreServiceImpl implements UserScoreService {
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private UserScore findUserScoreById(final UUID id){
+    protected UserScore findUserScoreById(final UUID id){
         return userScoreRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private List<UserScore> findUserScoreByGameId(final UUID gameId){
+    protected List<UserScore> findUserScoreByGameId(final UUID gameId){
         return userScoreRepository.findByGameId(gameId)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private List<UserScore> findUserScoreByUserId(final UUID userId){
+    protected List<UserScore> findUserScoreByUserId(final UUID userId){
         return userScoreRepository.findByUserId(userId)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 
-    private UserScore findUserScoreByUserIdAndGameId(final UUID userId, final UUID gameId){
+    protected UserScore findUserScoreByUserIdAndGameId(final UUID userId, final UUID gameId){
         return userScoreRepository.findByUserIdAndGameId(userId, gameId)
-                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
-    }
-
-    private Game findGameById(final UUID id){
-        return gameRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
-    }
-
-    private User findUserById(final UUID id){
-        return userRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 

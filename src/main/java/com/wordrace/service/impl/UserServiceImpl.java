@@ -7,10 +7,10 @@ import com.wordrace.dto.*;
 import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.exception.RoomCapacityIsFullException;
+import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.model.User;
 import com.wordrace.model.UserScore;
-import com.wordrace.repository.RoomRepository;
 import com.wordrace.repository.UserRepository;
 import com.wordrace.request.user.UserPostJoinRoomRequest;
 import com.wordrace.request.user.UserPostRequest;
@@ -29,17 +29,17 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private final RoomServiceImpl roomService;
     private final UserRepository userRepository;
-    private final RoomRepository roomRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
-    public UserServiceImpl(UserRepository userRepository,
-                           RoomRepository roomRepository,
+    public UserServiceImpl(RoomServiceImpl roomService, UserRepository userRepository,
                            ModelMapper modelMapper,
                            PasswordEncoder passwordEncoder){
+        this.roomService = roomService;
         this.userRepository = userRepository;
-        this.roomRepository = roomRepository;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
     }
@@ -62,9 +62,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public DataResult<List<GameDto>> getAllGamesByUserId(final UUID userId) {
         final User user = findUserById(userId);
-        final List<GameDto> userGames = GlobalHelper.listDtoConverter(modelMapper, user.getRooms(), GameDto.class);
+        final List<Game> userGames = user.getRooms()
+                .stream().
+                map(Room::getGame).collect(Collectors.toList());
+        final List<GameDto> userGameDtos = GlobalHelper.listDtoConverter(modelMapper,
+                userGames, GameDto.class);
 
-        return new SuccessDataResult<>(userGames, ResultMessages.EMPTY);
+        return new SuccessDataResult<>(userGameDtos, ResultMessages.EMPTY);
     }
 
     @Override
@@ -90,13 +94,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public DataResult<RoomDto> joinRoom(final UserPostJoinRoomRequest userPostJoinRoomRequest) {
         final User user = findUserById(UUID.fromString(userPostJoinRoomRequest.getUserId()));
-        final Room room = findRoomById(UUID.fromString(userPostJoinRoomRequest.getRoomId()));
+        final Room room = roomService.findRoomById(UUID.fromString(userPostJoinRoomRequest.getRoomId()));
 
         isAlreadyUserInRoom(room.getUsers(), user);
         checkRoomCapacity(room.getUsers().size(), room.getCapacity());
         user.getRooms().add(room);
+        userRepository.save(user);
 
-        return new SuccessDataResult<>(modelMapper.map(userRepository.save(user), RoomDto.class), UserMessages.ROOM_JOIN_SUCCESSFULLY);
+        return new SuccessDataResult<>(modelMapper.map(room, RoomDto.class), UserMessages.ROOM_JOIN_SUCCESSFULLY);
     }
 
     @Override
@@ -107,7 +112,7 @@ public class UserServiceImpl implements UserService {
                 .filter(room -> room.getGame().getId().equals(UUID.fromString(userPostScoreRequest.getGameId())))
                 .findFirst();
 
-        GlobalHelper.checkIfNullable(optionalRoom);
+        GlobalHelper.checkIfNull(optionalRoom);
 
         final UserScore newScore = new UserScore();
 
@@ -144,13 +149,8 @@ public class UserServiceImpl implements UserService {
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private User findUserById(final UUID id){
+    protected User findUserById(final UUID id){
         return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
-    }
-
-    private Room findRoomById(final UUID id){
-        return roomRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
 

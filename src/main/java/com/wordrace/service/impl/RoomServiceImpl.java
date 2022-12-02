@@ -72,7 +72,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public DataResult<RoomDto> createRoom(final RoomPostRequest roomPostRequest) {
-        GlobalHelper.checkIfAlreadyExist(roomRepository.findByRoomName(roomPostRequest.getRoomName()));
+        GlobalHelper.checkIfAlreadyExist(roomRepository.findByRoomName(roomPostRequest.getRoomName())
+                .orElse(null));
 
         final Room room = new Room();
 
@@ -112,7 +113,7 @@ public class RoomServiceImpl implements RoomService {
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private Room findRoomById(final UUID id){
+    protected Room findRoomById(final UUID id){
         return roomRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
     }
