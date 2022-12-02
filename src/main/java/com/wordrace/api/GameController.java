@@ -5,7 +5,6 @@ import com.wordrace.dto.RoomDto;
 import com.wordrace.dto.UserDto;
 import com.wordrace.dto.WordDto;
 import com.wordrace.request.game.GamePostRequest;
-import com.wordrace.request.game.GamePostWordRequest;
 import com.wordrace.request.game.GamePutRequest;
 import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
@@ -54,11 +53,6 @@ public class GameController {
     @PostMapping()
     public ResponseEntity<DataResult<GameDto>> createGame(@RequestBody GamePostRequest gamePostRequest){
         return ResponseEntity.ok(gameService.createGame(gamePostRequest));
-    }
-
-    @PostMapping(path = "/{id}/word")
-    public ResponseEntity<DataResult<GameDto>> addWordToGameByGameId(@PathVariable("id") UUID gameId, @RequestBody GamePostWordRequest gamePostWordRequest){
-        return ResponseEntity.ok(gameService.addWordToGameByGameId(gameId, gamePostWordRequest));
     }
 
     @PutMapping(path = "/{id}")

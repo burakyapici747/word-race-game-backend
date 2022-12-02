@@ -3,8 +3,10 @@ package com.wordrace.service.impl;
 import com.wordrace.constant.ResultMessages;
 import com.wordrace.dto.*;
 import com.wordrace.exception.EntityNotFoundException;
+import com.wordrace.model.Game;
 import com.wordrace.model.Word;
 import com.wordrace.repository.WordRepository;
+import com.wordrace.request.word.WordPostGameRequest;
 import com.wordrace.request.word.WordPostRequest;
 import com.wordrace.request.word.WordPutRequest;
 import com.wordrace.result.*;
@@ -15,16 +17,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class WordServiceImpl implements WordService {
+
     private final WordRepository wordRepository;
     private final ModelMapper modelMapper;
+    private final GameServiceImpl gameService;
 
-    public WordServiceImpl(final WordRepository wordRepository, final ModelMapper modelMapper) {
+    public WordServiceImpl(final WordRepository wordRepository, final ModelMapper modelMapper, GameServiceImpl gameService) {
         this.wordRepository = wordRepository;
         this.modelMapper = modelMapper;
+        this.gameService = gameService;
     }
 
     @Override
@@ -67,6 +71,22 @@ public class WordServiceImpl implements WordService {
     }
 
     @Override
+    public DataResult<GameDto> addWordToGameByGameId(UUID gameId, WordPostGameRequest wordPostGameRequest) {
+        final Game game = gameService.findGameById(gameId);
+
+        wordPostGameRequest.getWordIds().forEach(wordId -> {
+            if(checkAnySameWordInGame(game, UUID.fromString(wordId))){
+                final Word word = findById(UUID.fromString(wordId));
+
+                word.getGames().add(game);
+                wordRepository.save(word);
+            }
+        });
+
+        return new SuccessDataResult<>(modelMapper.map(game, GameDto.class), ResultMessages.SUCCESS_CREATE);
+    }
+
+    @Override
     public Result deleteWordById(final UUID id) {
         final Word word = findById(id);
 
@@ -75,8 +95,12 @@ public class WordServiceImpl implements WordService {
         return new SuccessResult(ResultMessages.SUCCESS_DELETE);
     }
 
-    private Word findById(UUID id){
+    protected Word findById(UUID id){
         return wordRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+    }
+
+    protected boolean checkAnySameWordInGame(final Game game, final UUID wordId){
+        return game.getWords().stream().anyMatch(gameWord -> gameWord.getId().equals(wordId));
     }
 }

@@ -6,7 +6,6 @@ import com.wordrace.dto.RoomDto;
 import com.wordrace.dto.UserDto;
 import com.wordrace.dto.WordDto;
 import com.wordrace.request.game.GamePostRequest;
-import com.wordrace.request.game.GamePostWordRequest;
 import com.wordrace.request.game.GamePutRequest;
 import com.wordrace.result.DataResult;
 import com.wordrace.result.Result;
@@ -21,7 +20,6 @@ public interface GameService {
     DataResult<RoomDto> getRoomByGameId(final UUID gameId);
     DataResult<List<UserDto>> getAllUsersByGameId(final UUID gameId);
     DataResult<GameDto> createGame(final GamePostRequest gamePostRequest);
-    DataResult<GameDto> addWordToGameByGameId(final UUID gameId, final GamePostWordRequest gamePostWordRequest);
     DataResult<GameDto> updateTotalScoreByGameId(final UUID gameId, final GamePutRequest gamePutRequest);
     Result deleteGameById(final UUID id);
 }

@@ -1,6 +1,8 @@
 package com.wordrace.api;
 
+import com.wordrace.dto.GameDto;
 import com.wordrace.dto.WordDto;
+import com.wordrace.request.word.WordPostGameRequest;
 import com.wordrace.request.word.WordPostRequest;
 import com.wordrace.request.word.WordPutRequest;
 import com.wordrace.result.DataResult;
@@ -39,6 +41,11 @@ public class WordController {
     @PutMapping("/{id}")
     public ResponseEntity<DataResult<WordDto>> updateWordById(@PathVariable("id") UUID id, @RequestBody WordPutRequest wordPutRequest){
         return ResponseEntity.ok(wordService.updateWordById(id, wordPutRequest));
+    }
+
+    @PostMapping(path = "/addwordstogame")
+    public ResponseEntity<DataResult<GameDto>> addWordToGameByGameId(@PathVariable("id") UUID gameId, @RequestBody WordPostGameRequest wordPostGameRequest){
+        return ResponseEntity.ok(wordService.addWordToGameByGameId(gameId, wordPostGameRequest));
     }
 
     @DeleteMapping("/{id}")
