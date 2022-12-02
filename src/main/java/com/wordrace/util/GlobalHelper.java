@@ -5,7 +5,7 @@ import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
 import lombok.experimental.UtilityClass;
 import org.modelmapper.ModelMapper;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
 
 @UtilityClass
 public class GlobalHelper {
-    public void checkIfNullable(Object object){
+
+    public void checkIfNull(Object object){
         if(Optional.ofNullable(object).isPresent()){
             throw new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA);
         }
@@ -26,8 +27,12 @@ public class GlobalHelper {
     }
 
     public <S, T> List<T> listDtoConverter(ModelMapper modelMapper, List<S> source, Class<T> target){
+        if(source == null)
+            return new ArrayList<>();
+
         return source.stream()
-                .map(sourceElement -> modelMapper.map(source, target))
+                .map(sourceElement -> modelMapper.map(sourceElement, target))
                 .collect(Collectors.toList());
     }
+
 }
