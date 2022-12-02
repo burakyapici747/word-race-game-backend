@@ -1,17 +1,13 @@
 package com.wordrace.dto;
 
-import com.wordrace.model.Room;
-import com.wordrace.model.UserScore;
-import com.wordrace.model.Word;
 import lombok.Data;
-
 import java.util.List;
 
 @Data
 public class GameDto {
     private String id;
-    private RoomDto room;
-    private List<UserScoreDto> userScores;
+    private GameRoomDto room;
+    private List<GameUserScoreDto> userScores;
     private List<WordDto> words;
     private int totalScore;
 }
