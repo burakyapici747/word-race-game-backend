@@ -1,10 +1,10 @@
-package com.wordrace.request.word;
+package com.wordrace.api.request.word;
 
 import com.wordrace.model.Language;
 import lombok.Data;
 
 @Data
-public class WordPutRequest {
+public class WordPostRequest {
     private String text;
     private Language language;
 }

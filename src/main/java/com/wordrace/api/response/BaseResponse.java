@@ -1,10 +1,10 @@
-package com.wordrace.result;
+package com.wordrace.api.response;
 
-public abstract class Result {
+public abstract class BaseResponse {
     public boolean isSuccess;
     public String message;
 
-    public Result(boolean isSuccess, String message){
+    public BaseResponse(boolean isSuccess, String message){
         this.isSuccess = isSuccess;
         this.message = message;
     }

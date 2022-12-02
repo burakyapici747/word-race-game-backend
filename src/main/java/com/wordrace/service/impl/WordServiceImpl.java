@@ -1,15 +1,19 @@
 package com.wordrace.service.impl;
 
+import com.wordrace.api.response.BaseResponse;
+import com.wordrace.api.response.DataResponse;
+import com.wordrace.api.response.SuccessDataResponse;
+import com.wordrace.api.response.SuccessResponse;
 import com.wordrace.constant.ResultMessages;
 import com.wordrace.dto.*;
 import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Game;
 import com.wordrace.model.Word;
 import com.wordrace.repository.WordRepository;
-import com.wordrace.request.word.WordPostGameRequest;
-import com.wordrace.request.word.WordPostRequest;
-import com.wordrace.request.word.WordPutRequest;
-import com.wordrace.result.*;
+import com.wordrace.api.request.word.WordPostGameRequest;
+import com.wordrace.api.request.word.WordPostRequest;
+import com.wordrace.api.request.word.WordPutRequest;
+import com.wordrace.response.*;
 import com.wordrace.service.WordService;
 import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
@@ -32,22 +36,22 @@ public class WordServiceImpl implements WordService {
     }
 
     @Override
-    public DataResult<List<WordDto>> getAllWords() {
+    public DataResponse<List<WordDto>> getAllWords() {
         final List<WordDto> wordDtos = GlobalHelper.listDtoConverter(modelMapper,
                 wordRepository.findAll(), WordDto.class);
 
-        return new SuccessDataResult<>(wordDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(wordDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<WordDto> getWordById(final UUID id) {
+    public DataResponse<WordDto> getWordById(final UUID id) {
         final Word word = findById(id);
 
-        return new SuccessDataResult<>(modelMapper.map(word, WordDto.class), ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(modelMapper.map(word, WordDto.class), ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<WordDto> createWord(final WordPostRequest wordPostRequest) {
+    public DataResponse<WordDto> createWord(final WordPostRequest wordPostRequest) {
         GlobalHelper.checkIfAlreadyExist(wordRepository.findByTextAndLanguage(wordPostRequest.getText(), wordPostRequest.getLanguage()));
 
         final Word word = new Word();
@@ -55,11 +59,11 @@ public class WordServiceImpl implements WordService {
         word.setText(wordPostRequest.getText());
         word.setLanguage(wordPostRequest.getLanguage());
 
-        return new SuccessDataResult<>(modelMapper.map(wordRepository.save(word), WordDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(modelMapper.map(wordRepository.save(word), WordDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<WordDto> updateWordById(final UUID id, final WordPutRequest wordPutRequest) {
+    public DataResponse<WordDto> updateWordById(final UUID id, final WordPutRequest wordPutRequest) {
         final Word wordToUpdate = findById(id);
 
         GlobalHelper.checkIfAlreadyExist(wordRepository.findByTextAndLanguage(wordPutRequest.getText(), wordPutRequest.getLanguage()));
@@ -67,11 +71,11 @@ public class WordServiceImpl implements WordService {
         wordToUpdate.setText(wordPutRequest.getText());
         wordToUpdate.setLanguage(wordPutRequest.getLanguage());
 
-        return new SuccessDataResult<>(modelMapper.map(wordRepository.save(wordToUpdate), WordDto.class), ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResponse<>(modelMapper.map(wordRepository.save(wordToUpdate), WordDto.class), ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
-    public DataResult<GameDto> addWordToGameByGameId(UUID gameId, WordPostGameRequest wordPostGameRequest) {
+    public DataResponse<GameDto> addWordToGameByGameId(UUID gameId, WordPostGameRequest wordPostGameRequest) {
         final Game game = gameService.findGameById(gameId);
 
         wordPostGameRequest.getWordIds().forEach(wordId -> {
@@ -83,16 +87,16 @@ public class WordServiceImpl implements WordService {
             }
         });
 
-        return new SuccessDataResult<>(modelMapper.map(game, GameDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(modelMapper.map(game, GameDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public Result deleteWordById(final UUID id) {
+    public BaseResponse deleteWordById(final UUID id) {
         final Word word = findById(id);
 
         wordRepository.delete(word);
 
-        return new SuccessResult(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
     }
 
     protected Word findById(UUID id){

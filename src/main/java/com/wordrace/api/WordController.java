@@ -2,11 +2,11 @@ package com.wordrace.api;
 
 import com.wordrace.dto.GameDto;
 import com.wordrace.dto.WordDto;
-import com.wordrace.request.word.WordPostGameRequest;
-import com.wordrace.request.word.WordPostRequest;
-import com.wordrace.request.word.WordPutRequest;
-import com.wordrace.result.DataResult;
-import com.wordrace.result.Result;
+import com.wordrace.api.request.word.WordPostGameRequest;
+import com.wordrace.api.request.word.WordPostRequest;
+import com.wordrace.api.request.word.WordPutRequest;
+import com.wordrace.api.response.DataResponse;
+import com.wordrace.api.response.BaseResponse;
 import com.wordrace.service.WordService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,32 +24,32 @@ public class WordController {
     }
 
     @GetMapping()
-    public ResponseEntity<DataResult<List<WordDto>>> getAllWords(){
+    public ResponseEntity<DataResponse<List<WordDto>>> getAllWords(){
         return ResponseEntity.ok(wordService.getAllWords());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DataResult<WordDto>> getWordById(@PathVariable("id") UUID id){
+    public ResponseEntity<DataResponse<WordDto>> getWordById(@PathVariable("id") UUID id){
         return ResponseEntity.ok(wordService.getWordById(id));
     }
 
     @PostMapping
-    public ResponseEntity<DataResult<WordDto>> createWord(@RequestBody WordPostRequest wordPostRequest){
+    public ResponseEntity<DataResponse<WordDto>> createWord(@RequestBody WordPostRequest wordPostRequest){
         return ResponseEntity.ok(wordService.createWord(wordPostRequest));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DataResult<WordDto>> updateWordById(@PathVariable("id") UUID id, @RequestBody WordPutRequest wordPutRequest){
+    public ResponseEntity<DataResponse<WordDto>> updateWordById(@PathVariable("id") UUID id, @RequestBody WordPutRequest wordPutRequest){
         return ResponseEntity.ok(wordService.updateWordById(id, wordPutRequest));
     }
 
     @PostMapping(path = "/addwordstogame")
-    public ResponseEntity<DataResult<GameDto>> addWordToGameByGameId(@PathVariable("id") UUID gameId, @RequestBody WordPostGameRequest wordPostGameRequest){
+    public ResponseEntity<DataResponse<GameDto>> addWordToGameByGameId(@PathVariable("id") UUID gameId, @RequestBody WordPostGameRequest wordPostGameRequest){
         return ResponseEntity.ok(wordService.addWordToGameByGameId(gameId, wordPostGameRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Result> deleteWordById(@PathVariable UUID id){
+    public ResponseEntity<BaseResponse> deleteWordById(@PathVariable UUID id){
         return ResponseEntity.ok(wordService.deleteWordById(id));
     }
 

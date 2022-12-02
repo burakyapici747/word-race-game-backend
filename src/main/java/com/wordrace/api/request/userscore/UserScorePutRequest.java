@@ -1,9 +1,9 @@
-package com.wordrace.request.userscore;
+package com.wordrace.api.request.userscore;
 
 import lombok.Data;
 
 @Data
-public class UserScorePostRequest {
+public class UserScorePutRequest {
     private String userId;
     private String gameId;
     private int score;

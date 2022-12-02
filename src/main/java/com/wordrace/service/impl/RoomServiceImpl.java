@@ -1,5 +1,6 @@
 package com.wordrace.service.impl;
 
+import com.wordrace.api.response.*;
 import com.wordrace.constant.ResultMessages;
 import com.wordrace.constant.RoomMessages;
 import com.wordrace.dto.GameDto;
@@ -10,9 +11,9 @@ import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Game;
 import com.wordrace.model.Room;
 import com.wordrace.repository.RoomRepository;
-import com.wordrace.request.room.RoomPostRequest;
-import com.wordrace.request.room.RoomPutRequest;
-import com.wordrace.result.*;
+import com.wordrace.api.request.room.RoomPostRequest;
+import com.wordrace.api.request.room.RoomPutRequest;
+import com.wordrace.response.*;
 import com.wordrace.service.RoomService;
 import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
@@ -31,47 +32,47 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public DataResult<List<RoomDto>> getAllRooms() {
+    public DataResponse<List<RoomDto>> getAllRooms() {
         final List<RoomDto> roomDtos = GlobalHelper.listDtoConverter(modelMapper,
                 roomRepository.findAll(), RoomDto.class);
 
-        return new SuccessDataResult<>(roomDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(roomDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<RoomDto> getRoomById(final UUID id) {
+    public DataResponse<RoomDto> getRoomById(final UUID id) {
         final Room room = findRoomById(id);
         final RoomDto roomDto = modelMapper.map(room, RoomDto.class);
 
-        return new SuccessDataResult<>(roomDto, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(roomDto, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<GameDto> getGameByRoomId(final UUID roomId) {
+    public DataResponse<GameDto> getGameByRoomId(final UUID roomId) {
         final Game game = findRoomById(roomId).getGame();
         final GameDto gameDto = modelMapper.map(game, GameDto.class);
 
-        return new SuccessDataResult<>(gameDto, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(gameDto, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<WordDto>> getWordsByRoomId(final UUID roomId) {
+    public DataResponse<List<WordDto>> getWordsByRoomId(final UUID roomId) {
         final Game game = findRoomById(roomId).getGame();
         final List<WordDto> wordDtos = GlobalHelper.listDtoConverter(modelMapper, game.getWords(), WordDto.class);
 
-        return new SuccessDataResult<>(wordDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(wordDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<UserDto>> getUsersByRoomId(final UUID roomId) {
+    public DataResponse<List<UserDto>> getUsersByRoomId(final UUID roomId) {
         final Room room = findRoomById(roomId);
         final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper, room.getUsers(), UserDto.class);
 
-        return new SuccessDataResult<>(userDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(userDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<RoomDto> createRoom(final RoomPostRequest roomPostRequest) {
+    public DataResponse<RoomDto> createRoom(final RoomPostRequest roomPostRequest) {
         GlobalHelper.checkIfAlreadyExist(roomRepository.findByRoomName(roomPostRequest.getRoomName())
                 .orElse(null));
 
@@ -83,11 +84,11 @@ public class RoomServiceImpl implements RoomService {
 
         final RoomDto roomDto = modelMapper.map(roomRepository.save(room), RoomDto.class);
 
-        return new SuccessDataResult<>(roomDto, ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(roomDto, ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<RoomDto> updateRoomById(final UUID id, final RoomPutRequest roomPutRequest) {
+    public DataResponse<RoomDto> updateRoomById(final UUID id, final RoomPutRequest roomPutRequest) {
         final Room roomToUpdate = findRoomById(id);
 
         boolean isUserInRoom = roomToUpdate.getUsers()
@@ -95,22 +96,22 @@ public class RoomServiceImpl implements RoomService {
                         .anyMatch(user -> user.getId().equals(UUID.fromString(roomPutRequest.getWinnerId())));
 
         if(!isUserInRoom)
-            return new ErrorDataResult<>(null, RoomMessages.ROOM_USER_NOT_JOINED);
+            return new ErrorDataResponse<>(null, RoomMessages.ROOM_USER_NOT_JOINED);
 
         roomToUpdate.setWinnerId(UUID.fromString(roomPutRequest.getWinnerId()));
 
         final RoomDto roomDto = modelMapper.map(roomRepository.save(roomToUpdate), RoomDto.class);
 
-        return new SuccessDataResult<>(roomDto, ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResponse<>(roomDto, ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
-    public Result deleteRoomById(final UUID id) {
+    public BaseResponse deleteRoomById(final UUID id) {
         final Room room = findRoomById(id);
 
         roomRepository.delete(room);
 
-        return new SuccessResult(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
     }
 
     protected Room findRoomById(final UUID id){

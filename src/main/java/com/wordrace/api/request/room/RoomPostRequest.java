@@ -1,4 +1,4 @@
-package com.wordrace.request.room;
+package com.wordrace.api.request.room;
 
 import lombok.Data;
 

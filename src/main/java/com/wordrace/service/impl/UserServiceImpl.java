@@ -1,5 +1,9 @@
 package com.wordrace.service.impl;
 
+import com.wordrace.api.response.BaseResponse;
+import com.wordrace.api.response.DataResponse;
+import com.wordrace.api.response.SuccessDataResponse;
+import com.wordrace.api.response.SuccessResponse;
 import com.wordrace.constant.ResultMessages;
 import com.wordrace.constant.RoomMessages;
 import com.wordrace.constant.UserMessages;
@@ -12,11 +16,11 @@ import com.wordrace.model.Room;
 import com.wordrace.model.User;
 import com.wordrace.model.UserScore;
 import com.wordrace.repository.UserRepository;
-import com.wordrace.request.user.UserPostJoinRoomRequest;
-import com.wordrace.request.user.UserPostRequest;
-import com.wordrace.request.user.UserPostScoreRequest;
-import com.wordrace.request.user.UserPutRequest;
-import com.wordrace.result.*;
+import com.wordrace.api.request.user.UserPostJoinRoomRequest;
+import com.wordrace.api.request.user.UserPostRequest;
+import com.wordrace.api.request.user.UserPostScoreRequest;
+import com.wordrace.api.request.user.UserPutRequest;
+import com.wordrace.response.*;
 import com.wordrace.service.UserService;
 import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
@@ -45,22 +49,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public DataResult<List<UserDto>> getAllUsers() {
+    public DataResponse<List<UserDto>> getAllUsers() {
         final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper,
                 userRepository.findAll(), UserDto.class);
 
-        return new SuccessDataResult<>(userDtos, "");
+        return new SuccessDataResponse<>(userDtos, "");
     }
 
     @Override
-    public DataResult<UserDto> getUserById(final UUID id) {
+    public DataResponse<UserDto> getUserById(final UUID id) {
         final User user = findUserById(id);
 
-        return new SuccessDataResult<>(modelMapper.map(user, UserDto.class), ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(modelMapper.map(user, UserDto.class), ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<GameDto>> getAllGamesByUserId(final UUID userId) {
+    public DataResponse<List<GameDto>> getAllGamesByUserId(final UUID userId) {
         final User user = findUserById(userId);
         final List<Game> userGames = user.getRooms()
                 .stream().
@@ -68,19 +72,19 @@ public class UserServiceImpl implements UserService {
         final List<GameDto> userGameDtos = GlobalHelper.listDtoConverter(modelMapper,
                 userGames, GameDto.class);
 
-        return new SuccessDataResult<>(userGameDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(userGameDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<List<RoomDto>> getAllRoomsByUserId(final UUID userId) {
+    public DataResponse<List<RoomDto>> getAllRoomsByUserId(final UUID userId) {
         final User user = findUserById(userId);
         final List<RoomDto> roomDtos = GlobalHelper.listDtoConverter(modelMapper, user.getRooms(), RoomDto.class);
 
-        return new SuccessDataResult<>(roomDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(roomDtos, ResultMessages.EMPTY);
     }
 
     @Override
-    public DataResult<UserDto> createUser(final UserPostRequest userPostRequest) {
+    public DataResponse<UserDto> createUser(final UserPostRequest userPostRequest) {
         GlobalHelper.checkIfAlreadyExist(userRepository.findUserByEmail(userPostRequest.getEmail()).orElse(null));
 
         final User user = new User();
@@ -88,11 +92,11 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userPostRequest.getEmail());
         user.setPassword(passwordEncoder.encode(userPostRequest.getPassword()));
 
-        return new SuccessDataResult<>(modelMapper.map(userRepository.save(user), UserDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(modelMapper.map(userRepository.save(user), UserDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<RoomDto> joinRoom(final UserPostJoinRoomRequest userPostJoinRoomRequest) {
+    public DataResponse<RoomDto> joinRoom(final UserPostJoinRoomRequest userPostJoinRoomRequest) {
         final User user = findUserById(UUID.fromString(userPostJoinRoomRequest.getUserId()));
         final Room room = roomService.findRoomById(UUID.fromString(userPostJoinRoomRequest.getRoomId()));
 
@@ -101,11 +105,11 @@ public class UserServiceImpl implements UserService {
         user.getRooms().add(room);
         userRepository.save(user);
 
-        return new SuccessDataResult<>(modelMapper.map(room, RoomDto.class), UserMessages.ROOM_JOIN_SUCCESSFULLY);
+        return new SuccessDataResponse<>(modelMapper.map(room, RoomDto.class), UserMessages.ROOM_JOIN_SUCCESSFULLY);
     }
 
     @Override
-    public DataResult<RoomDto> addScoreToUser(final UserPostScoreRequest userPostScoreRequest) {
+    public DataResponse<RoomDto> addScoreToUser(final UserPostScoreRequest userPostScoreRequest) {
         final User user = findUserById(UUID.fromString(userPostScoreRequest.getUserId()));
         final Optional<Room> optionalRoom = user.getRooms()
                 .stream()
@@ -123,11 +127,11 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
-        return new SuccessDataResult<>(modelMapper.map(optionalRoom.get(), RoomDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(modelMapper.map(optionalRoom.get(), RoomDto.class), ResultMessages.SUCCESS_CREATE);
     }
 
     @Override
-    public DataResult<UserDto> updateUser(final UUID id, final UserPutRequest userPutRequest) {
+    public DataResponse<UserDto> updateUser(final UUID id, final UserPutRequest userPutRequest) {
         final User userToUpdate = findUserById(id);
 
         if(nickNameIsValid(userToUpdate, userPutRequest.getNickName())){
@@ -137,16 +141,16 @@ public class UserServiceImpl implements UserService {
             userRepository.save(userToUpdate);
         }
 
-        return new SuccessDataResult<>(modelMapper.map(userToUpdate, UserDto.class), ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResponse<>(modelMapper.map(userToUpdate, UserDto.class), ResultMessages.SUCCESS_UPDATE);
     }
 
     @Override
-    public Result deleteUserById(final UUID id) {
+    public BaseResponse deleteUserById(final UUID id) {
         final User user = findUserById(id);
 
         userRepository.delete(user);
 
-        return new SuccessResult(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
     }
 
     protected User findUserById(final UUID id){
