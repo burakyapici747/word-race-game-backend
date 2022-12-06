@@ -44,7 +44,7 @@ public class WordController {
         return ResponseEntity.ok(wordService.updateWordById(id, wordPutRequest));
     }
 
-    @PostMapping(path = "/addwordstogame")
+    @PostMapping(path = "/addwordstogame/{id}")
     public ResponseEntity<DataResponse<GameDto>> addWordToGameByGameId(@PathVariable("id") UUID gameId,
                                                                        @RequestBody WordPostGameRequest wordPostGameRequest){
         return ResponseEntity.ok(wordService.addWordToGameByGameId(gameId, wordPostGameRequest));
