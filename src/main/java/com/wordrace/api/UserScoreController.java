@@ -15,7 +15,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/userscore")
 public class UserScoreController {
-
     private final UserScoreService userScoreService;
 
     public UserScoreController(UserScoreService userScoreService){
@@ -59,10 +58,8 @@ public class UserScoreController {
     }
 
     @DeleteMapping("/{userId}/{gameId}")
-    public ResponseEntity<BaseResponse> deleteUserScoreByUserIdAndGameId(@PathVariable("userId") UUID userId, @PathVariable("gameId") UUID gameId){
+    public ResponseEntity<BaseResponse> deleteUserScoreByUserIdAndGameId(@PathVariable("userId") UUID userId,
+                                                                         @PathVariable("gameId") UUID gameId){
         return ResponseEntity.ok(userScoreService.deleteUserScoreByUserIdAndGameId(userId, gameId));
     }
-
-
-
 }

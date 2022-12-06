@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class CustomUserDetailService implements UserDetailsService {
@@ -21,8 +22,9 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         final User user = getUserByUsername(username);
+        final List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(),user.getPassword(),new ArrayList<SimpleGrantedAuthority>());
+        return new org.springframework.security.core.userdetails.User(user.getEmail(),user.getPassword(),authorityList);
     }
 
     private User getUserByUsername(final String username){

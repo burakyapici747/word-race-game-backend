@@ -1,9 +1,11 @@
 package com.wordrace.constant;
 
-import org.springframework.stereotype.Component;
-
 public class SecurityConstant {
-    public final static String SECRET_KEY = "WORD_APP";
-    public final static int CURRENT_EXPIRED_DAY = 5;
-    public final static String AUTHORIZATION_TOKEN_PREFIX = "Bearer ";
+    public static final String SECRET_KEY = "WORD_APP";
+    public static final int CURRENT_EXPIRED_DAY = 5;
+    public static final String AUTHORIZATION_TOKEN_PREFIX = "Bearer ";
+
+    private SecurityConstant () {
+
+    }
 }

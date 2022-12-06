@@ -15,7 +15,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/room")
 public class RoomController {
-
     private final RoomService roomService;
 
     public RoomController(RoomService roomService)
@@ -54,13 +53,13 @@ public class RoomController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DataResponse<RoomDto>> updateRoom(@PathVariable("id") UUID id, @RequestBody RoomPutRequest roomPutRequest){
+    public ResponseEntity<DataResponse<RoomDto>> updateRoom(@PathVariable("id") UUID id,
+                                                            @RequestBody RoomPutRequest roomPutRequest){
         return ResponseEntity.ok(roomService.updateRoomById(id, roomPutRequest));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseResponse> deleteRoomById(UUID id){
+    public ResponseEntity<BaseResponse> deleteRoomById(@PathVariable("id") UUID id){
         return ResponseEntity.ok(roomService.deleteRoomById(id));
     }
-
 }

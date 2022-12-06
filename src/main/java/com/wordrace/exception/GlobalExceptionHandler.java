@@ -22,5 +22,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.ok()
                 .body(new ExceptionResult(HttpStatus.BAD_REQUEST, alreadyExistException.getMessage(), request.getServletPath(), ZonedDateTime.now()));
     }
-
 }

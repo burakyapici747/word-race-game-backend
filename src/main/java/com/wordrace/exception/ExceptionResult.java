@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 
 import java.time.ZonedDateTime;
 
-
 @AllArgsConstructor
 @Data
 public class ExceptionResult {

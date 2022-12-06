@@ -25,8 +25,7 @@ public class JwtHelper {
     public DecodedJWT decodeJwtToken(final String jwtToken) throws JWTVerificationException {
         final Algorithm algorithm = Algorithm.HMAC256(SecurityConstant.SECRET_KEY);
         final JWTVerifier verifier = JWT.require(algorithm).build();
-        final DecodedJWT decodedJWT = verifier.verify(jwtToken);
 
-        return decodedJWT;
+        return verifier.verify(jwtToken);
     }
 }

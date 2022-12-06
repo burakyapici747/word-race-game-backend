@@ -1,6 +1,6 @@
 package com.wordrace.util;
 
-import com.wordrace.constant.ResultMessages;
+import com.wordrace.constant.ResponseConstant;
 import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
 import lombok.experimental.UtilityClass;
@@ -16,13 +16,13 @@ public class GlobalHelper {
 
     public void checkIfNull(Object object){
         if(Optional.ofNullable(object).isPresent()){
-            throw new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA);
+            throw new EntityNotFoundException(ResponseConstant.NOT_FOUND_DATA);
         }
     }
 
     public void checkIfAlreadyExist(Object object){
         if(Objects.nonNull(object)){
-            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
+            throw new EntityAlreadyExistException(ResponseConstant.ALREADY_EXIST);
         }
     }
 

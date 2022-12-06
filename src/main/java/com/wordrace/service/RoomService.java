@@ -8,7 +8,6 @@ import com.wordrace.dto.UserDto;
 import com.wordrace.dto.WordDto;
 import com.wordrace.api.request.room.RoomPostRequest;
 import com.wordrace.api.request.room.RoomPutRequest;
-import com.wordrace.response.*;
 import java.util.List;
 import java.util.UUID;
 

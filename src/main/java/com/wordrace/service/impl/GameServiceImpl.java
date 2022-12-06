@@ -1,6 +1,6 @@
 package com.wordrace.service.impl;
 
-import com.wordrace.constant.ResultMessages;
+import com.wordrace.constant.ResponseConstant;
 import com.wordrace.dto.GameDto;
 import com.wordrace.dto.RoomDto;
 import com.wordrace.dto.UserDto;
@@ -38,10 +38,10 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public DataResponse<List<GameDto>> getAllGames() {
-        final List<GameDto> gameDtos = GlobalHelper.listDtoConverter(modelMapper,
+        final List<GameDto> gameDtoList = GlobalHelper.listDtoConverter(modelMapper,
                 gameRepository.findAll(), GameDto.class);
 
-        return new SuccessDataResponse<>(gameDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(gameDtoList, ResponseConstant.EMPTY);
     }
 
     @Override
@@ -49,15 +49,15 @@ public class GameServiceImpl implements GameService {
         final Game game = findGameById(id);
         final GameDto gameDto = modelMapper.map(game, GameDto.class);
         
-        return new SuccessDataResponse<>(gameDto, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(gameDto, ResponseConstant.EMPTY);
     }
 
     @Override
     public DataResponse<List<WordDto>> getAllWordsByGameId(final UUID gameId) {
         final Game game = findGameById(gameId);
-        final List<WordDto> wordDtos = GlobalHelper.listDtoConverter(modelMapper, game.getWords(), WordDto.class);
+        final List<WordDto> wordDtoList = GlobalHelper.listDtoConverter(modelMapper, game.getWords(), WordDto.class);
 
-        return new SuccessDataResponse<>(wordDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(wordDtoList, ResponseConstant.EMPTY);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class GameServiceImpl implements GameService {
         final Room room = game.getRoom();
         final RoomDto roomDto = modelMapper.map(room, RoomDto.class);
         
-        return new SuccessDataResponse<>(roomDto, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(roomDto, ResponseConstant.EMPTY);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class GameServiceImpl implements GameService {
         final Room room = game.getRoom();
         final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper, room.getUsers(), UserDto.class);
 
-        return new SuccessDataResponse<>(userDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(userDtos, ResponseConstant.EMPTY);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class GameServiceImpl implements GameService {
         
         final GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
         
-        return new SuccessDataResponse<>(gameDto, ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(gameDto, ResponseConstant.SUCCESS_CREATE);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class GameServiceImpl implements GameService {
         
         final GameDto gameDto = modelMapper.map(gameRepository.save(game), GameDto.class);
         
-        return new SuccessDataResponse<>(gameDto, ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResponse<>(gameDto, ResponseConstant.SUCCESS_UPDATE);
     }
 
     @Override
@@ -109,12 +109,12 @@ public class GameServiceImpl implements GameService {
         
         gameRepository.delete(game);
         
-        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResponseConstant.SUCCESS_DELETE);
     }
 
     protected Game findGameById(final UUID id){
         return gameRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(() -> new EntityNotFoundException(ResponseConstant.NOT_FOUND_DATA));
     }
 
 }

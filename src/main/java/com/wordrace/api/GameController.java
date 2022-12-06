@@ -18,7 +18,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/game")
 public class GameController {
-
     private final GameService gameService;
 
     public GameController(GameService gameService) {
@@ -56,7 +55,8 @@ public class GameController {
     }
 
     @PutMapping(path = "/{id}")
-    public ResponseEntity<DataResponse<GameDto>> updateTotalScoreByGameId(@PathVariable("id") UUID gameId, @RequestBody GamePutRequest gamePutRequest){
+    public ResponseEntity<DataResponse<GameDto>> updateTotalScoreByGameId(@PathVariable("id") UUID gameId,
+                                                                          @RequestBody GamePutRequest gamePutRequest){
         return ResponseEntity.ok(gameService.updateTotalScoreByGameId(gameId, gamePutRequest));
     }
 

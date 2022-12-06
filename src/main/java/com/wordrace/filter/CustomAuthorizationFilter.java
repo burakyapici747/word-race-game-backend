@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +47,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
                     final Map<String,String> errorData = new HashMap<>();
                     errorData.put("error", e.getMessage());
-                    errorData.put("stackTrace", e.getStackTrace().toString());
+                    errorData.put("stackTrace", Arrays.toString(e.getStackTrace()));
                     errorData.put("path", request.getPathInfo());
                     errorData.put("time", LocalDateTime.now().toString());
 

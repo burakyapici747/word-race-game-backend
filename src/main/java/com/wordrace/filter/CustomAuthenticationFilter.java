@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
     private final AuthenticationManager authenticationManager;
 
     public CustomAuthenticationFilter(final AuthenticationManager authenticationManager){

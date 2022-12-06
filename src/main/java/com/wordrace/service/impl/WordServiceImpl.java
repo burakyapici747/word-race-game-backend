@@ -4,7 +4,7 @@ import com.wordrace.api.response.BaseResponse;
 import com.wordrace.api.response.DataResponse;
 import com.wordrace.api.response.SuccessDataResponse;
 import com.wordrace.api.response.SuccessResponse;
-import com.wordrace.constant.ResultMessages;
+import com.wordrace.constant.ResponseConstant;
 import com.wordrace.dto.*;
 import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Game;
@@ -13,7 +13,6 @@ import com.wordrace.repository.WordRepository;
 import com.wordrace.api.request.word.WordPostGameRequest;
 import com.wordrace.api.request.word.WordPostRequest;
 import com.wordrace.api.request.word.WordPutRequest;
-import com.wordrace.response.*;
 import com.wordrace.service.WordService;
 import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
@@ -37,17 +36,17 @@ public class WordServiceImpl implements WordService {
 
     @Override
     public DataResponse<List<WordDto>> getAllWords() {
-        final List<WordDto> wordDtos = GlobalHelper.listDtoConverter(modelMapper,
+        final List<WordDto> wordDtoList = GlobalHelper.listDtoConverter(modelMapper,
                 wordRepository.findAll(), WordDto.class);
 
-        return new SuccessDataResponse<>(wordDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(wordDtoList, ResponseConstant.EMPTY);
     }
 
     @Override
     public DataResponse<WordDto> getWordById(final UUID id) {
         final Word word = findById(id);
 
-        return new SuccessDataResponse<>(modelMapper.map(word, WordDto.class), ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(modelMapper.map(word, WordDto.class), ResponseConstant.EMPTY);
     }
 
     @Override
@@ -59,7 +58,7 @@ public class WordServiceImpl implements WordService {
         word.setText(wordPostRequest.getText());
         word.setLanguage(wordPostRequest.getLanguage());
 
-        return new SuccessDataResponse<>(modelMapper.map(wordRepository.save(word), WordDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(modelMapper.map(wordRepository.save(word), WordDto.class), ResponseConstant.SUCCESS_CREATE);
     }
 
     @Override
@@ -71,7 +70,7 @@ public class WordServiceImpl implements WordService {
         wordToUpdate.setText(wordPutRequest.getText());
         wordToUpdate.setLanguage(wordPutRequest.getLanguage());
 
-        return new SuccessDataResponse<>(modelMapper.map(wordRepository.save(wordToUpdate), WordDto.class), ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResponse<>(modelMapper.map(wordRepository.save(wordToUpdate), WordDto.class), ResponseConstant.SUCCESS_UPDATE);
     }
 
     @Override
@@ -87,7 +86,7 @@ public class WordServiceImpl implements WordService {
             }
         });
 
-        return new SuccessDataResponse<>(modelMapper.map(game, GameDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(modelMapper.map(game, GameDto.class), ResponseConstant.SUCCESS_CREATE);
     }
 
     @Override
@@ -96,12 +95,12 @@ public class WordServiceImpl implements WordService {
 
         wordRepository.delete(word);
 
-        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResponseConstant.SUCCESS_DELETE);
     }
 
     protected Word findById(UUID id){
         return wordRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(()-> new EntityNotFoundException(ResponseConstant.NOT_FOUND_DATA));
     }
 
     protected boolean checkAnySameWordInGame(final Game game, final UUID wordId){

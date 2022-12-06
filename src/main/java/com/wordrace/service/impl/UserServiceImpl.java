@@ -4,9 +4,9 @@ import com.wordrace.api.response.BaseResponse;
 import com.wordrace.api.response.DataResponse;
 import com.wordrace.api.response.SuccessDataResponse;
 import com.wordrace.api.response.SuccessResponse;
-import com.wordrace.constant.ResultMessages;
-import com.wordrace.constant.RoomMessages;
-import com.wordrace.constant.UserMessages;
+import com.wordrace.constant.ResponseConstant;
+import com.wordrace.constant.RoomConstant;
+import com.wordrace.constant.UserConstant;
 import com.wordrace.dto.*;
 import com.wordrace.exception.EntityAlreadyExistException;
 import com.wordrace.exception.EntityNotFoundException;
@@ -20,7 +20,6 @@ import com.wordrace.api.request.user.UserPostJoinRoomRequest;
 import com.wordrace.api.request.user.UserPostRequest;
 import com.wordrace.api.request.user.UserPostScoreRequest;
 import com.wordrace.api.request.user.UserPutRequest;
-import com.wordrace.response.*;
 import com.wordrace.service.UserService;
 import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
@@ -50,37 +49,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public DataResponse<List<UserDto>> getAllUsers() {
-        final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper,
+        final List<UserDto> userDtoList = GlobalHelper.listDtoConverter(modelMapper,
                 userRepository.findAll(), UserDto.class);
 
-        return new SuccessDataResponse<>(userDtos, "");
+        return new SuccessDataResponse<>(userDtoList, "");
     }
 
     @Override
     public DataResponse<UserDto> getUserById(final UUID id) {
         final User user = findUserById(id);
 
-        return new SuccessDataResponse<>(modelMapper.map(user, UserDto.class), ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(modelMapper.map(user, UserDto.class), ResponseConstant.EMPTY);
     }
 
     @Override
     public DataResponse<List<GameDto>> getAllGamesByUserId(final UUID userId) {
         final User user = findUserById(userId);
         final List<Game> userGames = user.getRooms()
-                .stream().
-                map(Room::getGame).collect(Collectors.toList());
-        final List<GameDto> userGameDtos = GlobalHelper.listDtoConverter(modelMapper,
-                userGames, GameDto.class);
+                .stream()
+                .map(Room::getGame)
+                .collect(Collectors.toList());
+        final List<GameDto> userGameDtoList = GlobalHelper.listDtoConverter(modelMapper, userGames, GameDto.class);
 
-        return new SuccessDataResponse<>(userGameDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(userGameDtoList, ResponseConstant.EMPTY);
     }
 
     @Override
     public DataResponse<List<RoomDto>> getAllRoomsByUserId(final UUID userId) {
         final User user = findUserById(userId);
-        final List<RoomDto> roomDtos = GlobalHelper.listDtoConverter(modelMapper, user.getRooms(), RoomDto.class);
+        final List<RoomDto> roomDtoList = GlobalHelper.listDtoConverter(modelMapper, user.getRooms(), RoomDto.class);
 
-        return new SuccessDataResponse<>(roomDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(roomDtoList, ResponseConstant.EMPTY);
     }
 
     @Override
@@ -92,7 +91,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userPostRequest.getEmail());
         user.setPassword(passwordEncoder.encode(userPostRequest.getPassword()));
 
-        return new SuccessDataResponse<>(modelMapper.map(userRepository.save(user), UserDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(modelMapper.map(userRepository.save(user), UserDto.class), ResponseConstant.SUCCESS_CREATE);
     }
 
     @Override
@@ -105,7 +104,7 @@ public class UserServiceImpl implements UserService {
         user.getRooms().add(room);
         userRepository.save(user);
 
-        return new SuccessDataResponse<>(modelMapper.map(room, RoomDto.class), UserMessages.ROOM_JOIN_SUCCESSFULLY);
+        return new SuccessDataResponse<>(modelMapper.map(room, RoomDto.class), UserConstant.ROOM_JOIN_SUCCESSFULLY);
     }
 
     @Override
@@ -127,7 +126,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
-        return new SuccessDataResponse<>(modelMapper.map(optionalRoom.get(), RoomDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(modelMapper.map(optionalRoom.get(), RoomDto.class), ResponseConstant.SUCCESS_CREATE);
     }
 
     @Override
@@ -135,13 +134,14 @@ public class UserServiceImpl implements UserService {
         final User userToUpdate = findUserById(id);
 
         if(nickNameIsValid(userToUpdate, userPutRequest.getNickName())){
-            checkIfNickNameAlreadyExist(userToUpdate.getId(), userRepository.findUserByNickName(userPutRequest.getNickName()));
+            checkIfNickNameAlreadyExist(userToUpdate.getId(),
+                    userRepository.findUserByNickName(userPutRequest.getNickName()));
 
             userToUpdate.setNickName(userPutRequest.getNickName());
             userRepository.save(userToUpdate);
         }
 
-        return new SuccessDataResponse<>(modelMapper.map(userToUpdate, UserDto.class), ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResponse<>(modelMapper.map(userToUpdate, UserDto.class), ResponseConstant.SUCCESS_UPDATE);
     }
 
     @Override
@@ -150,23 +150,23 @@ public class UserServiceImpl implements UserService {
 
         userRepository.delete(user);
 
-        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResponseConstant.SUCCESS_DELETE);
     }
 
     protected User findUserById(final UUID id){
         return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(() -> new EntityNotFoundException(ResponseConstant.NOT_FOUND_DATA));
     }
 
     private void isAlreadyUserInRoom(final List<User> users, final User user){
         if(users.stream().anyMatch(inRoomUser -> inRoomUser.getId().equals(user.getId()))){
-            throw new EntityAlreadyExistException(RoomMessages.ROOM_USER_ALREADY_IN);
+            throw new EntityAlreadyExistException(RoomConstant.ROOM_USER_ALREADY_IN);
         }
     }
 
     private void checkRoomCapacity(final int usersCount, int roomCapacity){
         if(usersCount + 1 > roomCapacity){
-            throw new RoomCapacityIsFullException(RoomMessages.ROOM_CAPACITY_IS_FULL);
+            throw new RoomCapacityIsFullException(RoomConstant.ROOM_CAPACITY_IS_FULL);
         }
     }
 
@@ -176,7 +176,7 @@ public class UserServiceImpl implements UserService {
 
     private void checkIfNickNameAlreadyExist(final UUID userId, final Optional<User> resultFindUserByNickName){
         if(resultFindUserByNickName.isPresent() && !resultFindUserByNickName.get().getId().equals(userId)){
-            throw new EntityAlreadyExistException(ResultMessages.ALREADY_EXIST);
+            throw new EntityAlreadyExistException(ResponseConstant.ALREADY_EXIST);
         }
     }
 }

@@ -1,6 +1,6 @@
 package com.wordrace.service.impl;
 
-import com.wordrace.constant.ResultMessages;
+import com.wordrace.constant.ResponseConstant;
 import com.wordrace.dto.UserScoreDto;
 import com.wordrace.exception.EntityNotFoundException;
 import com.wordrace.model.Game;
@@ -41,25 +41,25 @@ public class UserScoreServiceImpl implements UserScoreService {
 
     @Override
     public DataResponse<List<UserScoreDto>> getAllUserScoresByGameId(final UUID gameId) {
-        List<UserScoreDto> userScoreDtos = GlobalHelper.listDtoConverter(modelMapper,
+        List<UserScoreDto> userScoreDtoList = GlobalHelper.listDtoConverter(modelMapper,
                 findUserScoreByGameId(gameId), UserScoreDto.class);
 
-        return new SuccessDataResponse<>(userScoreDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(userScoreDtoList, ResponseConstant.EMPTY);
     }
 
     @Override
     public DataResponse<List<UserScoreDto>> getAllUserScoresByUserId(final UUID userId) {
-       final  List<UserScoreDto> userScoreDtos = GlobalHelper.listDtoConverter(modelMapper,
+       final  List<UserScoreDto> userScoreDtoList = GlobalHelper.listDtoConverter(modelMapper,
                findUserScoreByUserId(userId), UserScoreDto.class);
 
-        return new SuccessDataResponse<>(userScoreDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(userScoreDtoList, ResponseConstant.EMPTY);
     }
 
     @Override
     public DataResponse<UserScoreDto> getUserScoreByUserIdAndGameId(final UUID userId, final UUID gameId) {
         return new SuccessDataResponse<>
                 (modelMapper.map(findUserScoreByUserIdAndGameId(userId, gameId), UserScoreDto.class),
-                        ResultMessages.EMPTY);
+                        ResponseConstant.EMPTY);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class UserScoreServiceImpl implements UserScoreService {
         userScore.setGame(game);
         userScore.setScore(userScorePostRequest.getScore());
 
-        return new SuccessDataResponse<>(modelMapper.map(userScoreRepository.save(userScore), UserScoreDto.class), ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(modelMapper.map(userScoreRepository.save(userScore), UserScoreDto.class), ResponseConstant.SUCCESS_CREATE);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class UserScoreServiceImpl implements UserScoreService {
 
         userScore.setScore(userScorePutRequest.getScore());
 
-        return new SuccessDataResponse<>(modelMapper.map(userScoreRepository.save(userScore), UserScoreDto.class), ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResponse<>(modelMapper.map(userScoreRepository.save(userScore), UserScoreDto.class), ResponseConstant.SUCCESS_UPDATE);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class UserScoreServiceImpl implements UserScoreService {
 
         userScoreRepository.deleteAll(userScore);
 
-        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResponseConstant.SUCCESS_DELETE);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class UserScoreServiceImpl implements UserScoreService {
 
         userScoreRepository.deleteAll(userScores);
 
-        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResponseConstant.SUCCESS_DELETE);
     }
 
     @Override
@@ -109,27 +109,27 @@ public class UserScoreServiceImpl implements UserScoreService {
 
         userScoreRepository.delete(userScore);
 
-        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResponseConstant.SUCCESS_DELETE);
     }
 
     protected UserScore findUserScoreById(final UUID id){
         return userScoreRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(()-> new EntityNotFoundException(ResponseConstant.NOT_FOUND_DATA));
     }
 
     protected List<UserScore> findUserScoreByGameId(final UUID gameId){
         return userScoreRepository.findByGameId(gameId)
-                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(()-> new EntityNotFoundException(ResponseConstant.NOT_FOUND_DATA));
     }
 
     protected List<UserScore> findUserScoreByUserId(final UUID userId){
         return userScoreRepository.findByUserId(userId)
-                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(()-> new EntityNotFoundException(ResponseConstant.NOT_FOUND_DATA));
     }
 
     protected UserScore findUserScoreByUserIdAndGameId(final UUID userId, final UUID gameId){
         return userScoreRepository.findByUserIdAndGameId(userId, gameId)
-                .orElseThrow(()-> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(()-> new EntityNotFoundException(ResponseConstant.NOT_FOUND_DATA));
     }
 
 }

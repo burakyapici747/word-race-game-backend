@@ -1,8 +1,8 @@
 package com.wordrace.service.impl;
 
 import com.wordrace.api.response.*;
-import com.wordrace.constant.ResultMessages;
-import com.wordrace.constant.RoomMessages;
+import com.wordrace.constant.ResponseConstant;
+import com.wordrace.constant.RoomConstant;
 import com.wordrace.dto.GameDto;
 import com.wordrace.dto.RoomDto;
 import com.wordrace.dto.UserDto;
@@ -13,7 +13,6 @@ import com.wordrace.model.Room;
 import com.wordrace.repository.RoomRepository;
 import com.wordrace.api.request.room.RoomPostRequest;
 import com.wordrace.api.request.room.RoomPutRequest;
-import com.wordrace.response.*;
 import com.wordrace.service.RoomService;
 import com.wordrace.util.GlobalHelper;
 import org.modelmapper.ModelMapper;
@@ -36,7 +35,7 @@ public class RoomServiceImpl implements RoomService {
         final List<RoomDto> roomDtos = GlobalHelper.listDtoConverter(modelMapper,
                 roomRepository.findAll(), RoomDto.class);
 
-        return new SuccessDataResponse<>(roomDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(roomDtos, ResponseConstant.EMPTY);
     }
 
     @Override
@@ -44,7 +43,7 @@ public class RoomServiceImpl implements RoomService {
         final Room room = findRoomById(id);
         final RoomDto roomDto = modelMapper.map(room, RoomDto.class);
 
-        return new SuccessDataResponse<>(roomDto, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(roomDto, ResponseConstant.EMPTY);
     }
 
     @Override
@@ -52,23 +51,23 @@ public class RoomServiceImpl implements RoomService {
         final Game game = findRoomById(roomId).getGame();
         final GameDto gameDto = modelMapper.map(game, GameDto.class);
 
-        return new SuccessDataResponse<>(gameDto, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(gameDto, ResponseConstant.EMPTY);
     }
 
     @Override
     public DataResponse<List<WordDto>> getWordsByRoomId(final UUID roomId) {
         final Game game = findRoomById(roomId).getGame();
-        final List<WordDto> wordDtos = GlobalHelper.listDtoConverter(modelMapper, game.getWords(), WordDto.class);
+        final List<WordDto> wordDtoList = GlobalHelper.listDtoConverter(modelMapper, game.getWords(), WordDto.class);
 
-        return new SuccessDataResponse<>(wordDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(wordDtoList, ResponseConstant.EMPTY);
     }
 
     @Override
     public DataResponse<List<UserDto>> getUsersByRoomId(final UUID roomId) {
         final Room room = findRoomById(roomId);
-        final List<UserDto> userDtos = GlobalHelper.listDtoConverter(modelMapper, room.getUsers(), UserDto.class);
+        final List<UserDto> userDtoList = GlobalHelper.listDtoConverter(modelMapper, room.getUsers(), UserDto.class);
 
-        return new SuccessDataResponse<>(userDtos, ResultMessages.EMPTY);
+        return new SuccessDataResponse<>(userDtoList, ResponseConstant.EMPTY);
     }
 
     @Override
@@ -84,7 +83,7 @@ public class RoomServiceImpl implements RoomService {
 
         final RoomDto roomDto = modelMapper.map(roomRepository.save(room), RoomDto.class);
 
-        return new SuccessDataResponse<>(roomDto, ResultMessages.SUCCESS_CREATE);
+        return new SuccessDataResponse<>(roomDto, ResponseConstant.SUCCESS_CREATE);
     }
 
     @Override
@@ -96,13 +95,13 @@ public class RoomServiceImpl implements RoomService {
                         .anyMatch(user -> user.getId().equals(UUID.fromString(roomPutRequest.getWinnerId())));
 
         if(!isUserInRoom)
-            return new ErrorDataResponse<>(null, RoomMessages.ROOM_USER_NOT_JOINED);
+            return new ErrorDataResponse<>(null, RoomConstant.ROOM_USER_NOT_JOINED);
 
         roomToUpdate.setWinnerId(UUID.fromString(roomPutRequest.getWinnerId()));
 
         final RoomDto roomDto = modelMapper.map(roomRepository.save(roomToUpdate), RoomDto.class);
 
-        return new SuccessDataResponse<>(roomDto, ResultMessages.SUCCESS_UPDATE);
+        return new SuccessDataResponse<>(roomDto, ResponseConstant.SUCCESS_UPDATE);
     }
 
     @Override
@@ -111,11 +110,11 @@ public class RoomServiceImpl implements RoomService {
 
         roomRepository.delete(room);
 
-        return new SuccessResponse(ResultMessages.SUCCESS_DELETE);
+        return new SuccessResponse(ResponseConstant.SUCCESS_DELETE);
     }
 
     protected Room findRoomById(final UUID id){
         return roomRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ResultMessages.NOT_FOUND_DATA));
+                .orElseThrow(() -> new EntityNotFoundException(ResponseConstant.NOT_FOUND_DATA));
     }
 }

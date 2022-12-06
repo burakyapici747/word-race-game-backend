@@ -39,12 +39,14 @@ public class WordController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DataResponse<WordDto>> updateWordById(@PathVariable("id") UUID id, @RequestBody WordPutRequest wordPutRequest){
+    public ResponseEntity<DataResponse<WordDto>> updateWordById(@PathVariable("id") UUID id,
+                                                                @RequestBody WordPutRequest wordPutRequest){
         return ResponseEntity.ok(wordService.updateWordById(id, wordPutRequest));
     }
 
     @PostMapping(path = "/addwordstogame")
-    public ResponseEntity<DataResponse<GameDto>> addWordToGameByGameId(@PathVariable("id") UUID gameId, @RequestBody WordPostGameRequest wordPostGameRequest){
+    public ResponseEntity<DataResponse<GameDto>> addWordToGameByGameId(@PathVariable("id") UUID gameId,
+                                                                       @RequestBody WordPostGameRequest wordPostGameRequest){
         return ResponseEntity.ok(wordService.addWordToGameByGameId(gameId, wordPostGameRequest));
     }
 
@@ -52,5 +54,4 @@ public class WordController {
     public ResponseEntity<BaseResponse> deleteWordById(@PathVariable UUID id){
         return ResponseEntity.ok(wordService.deleteWordById(id));
     }
-
 }

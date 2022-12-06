@@ -7,7 +7,6 @@ import com.wordrace.api.request.user.UserPostJoinRoomRequest;
 import com.wordrace.api.request.user.UserPostRequest;
 import com.wordrace.api.request.user.UserPostScoreRequest;
 import com.wordrace.api.request.user.UserPutRequest;
-import com.wordrace.response.*;
 import com.wordrace.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-
     private final UserService userService;
 
     public UserController(UserService userService){
@@ -60,7 +58,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DataResponse<UserDto>> updateUser(@PathVariable("id") UUID id, @RequestBody UserPutRequest userPutRequest){
+    public ResponseEntity<DataResponse<UserDto>> updateUser(@PathVariable("id") UUID id,
+                                                            @RequestBody UserPutRequest userPutRequest){
         return ResponseEntity.ok(userService.updateUser(id, userPutRequest));
     }
 
